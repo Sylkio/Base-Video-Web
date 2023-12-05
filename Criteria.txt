@@ -1,0 +1,31 @@
+
+The Video Web Application is for uploading, recording and watching videos. Do the MVP as simple as possible. You do not have to implement user authentication or a menu. Just a list with videos and buttons for Upload, Record, Delete and Edit name/description. The focus should be on the uploading, recording and viewing experience.
+
+MVP - Minimum Viable Product
+
+    The users should be able to upload videos of type MP4, MOV, HEVC and WebM up to 200 MB.
+    The users should be able to give the videos a name and a description.
+    The users should be able to play the videos in the browser or full screen. Use the HTML Video element.
+    The videos should be converted to H.264 in a MP4 container with AAC audio to be prepared for streaming. Use FFmpeg.
+    The videos should be presented as thumbnails with the name and the description.
+    The users should be able to record a video from the browser with the computer webcam or with their iPhone or Android mobile device. The user can switch between camera and share screen while recording on a computer. Use WebRTC.
+
+
+Extra features
+If you have developed your MVP and have time you can continue with these extra features in this order.
+
+    Support partial requests so the user can skip and jump back in the streaming video. 
+    Implement Adaptive Bitrate Streaming (ABS).
+    Implement resumable uploads to allow users to continue uploading a file if the connection is interrupted.
+    Authentication. The app requires authentication. Note that this feature will require some kind of registration flow.
+    Authorization. Only specific authorized users can upload videos. Note that this feature will require some kind of administration functionality where an admin can manage what users that can upload videos.
+    Different rooms where the users can record, upload and play videos. The rooms should have a name and a description. Authorized users should be able to create, update and delete rooms.
+
+
+Technical requirements
+
+    The app is completely browser based. In order to use the app, a user should only need a browser. There should be nothing extra to install.
+    Code libraries that are used must be MIT licensed or something similar. No proprietary libraries are allowed.
+    Use Azure services for web hosting, background work, blob storage and databases.
+    All developed code must be hosted on a public GitHub repository.
+
