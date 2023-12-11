@@ -10,6 +10,7 @@ using Microsoft.Extensions.Configuration;
 using VideoWebApp.Models;
 using Azure.Storage.Blobs.Models;
 using System.Diagnostics;
+using Microsoft.Extensions.Logging;
 namespace VideoWebApp.Services
 {
     public class AzureService : IAzureService
@@ -97,7 +98,7 @@ namespace VideoWebApp.Services
             }
         }
 
-        public async Task<List<string>> ListFilesInContainer(string containerName)
+        public async Task<IEnumerable<string>> ListFilesInContainer(string containerName)
 
         {
             try {
@@ -164,6 +165,33 @@ namespace VideoWebApp.Services
 
             
             
+        }
+
+        public async Task<string> UploadFileToBlobAsync(string containerName, string filePath)
+        {
+            try 
+            {
+                var blobServiceClient = new BlobServiceClient(_storageConnectionString);
+                var blobContainerClient = blobServiceClient.GetBlobContainerClient(containerName);
+                await blobContainerClient.CreateIfNotExistsAsync();
+
+                var fileName = Path.GetFileName(filePath);
+                var blobClient = blobContainerClient.GetBlobClient(fileName);
+
+                // Upload file
+                await using var fileStream = File.OpenRead(filePath);
+                await blobClient.UploadAsync(fileStream, true);
+
+                _logger.LogInformation($"Uploaded file '{fileName}' to container '{containerName}'.");
+                return blobClient.Uri.AbsoluteUri;
+
+            }
+
+            catch (Exception ex)
+            {
+                _logger.LogError($"Error uploading file: {ex.Message}");
+                return null;
+            }
         }
         
         
