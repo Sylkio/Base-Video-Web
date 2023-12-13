@@ -7,7 +7,6 @@ namespace VideoWebApp.Models.DTOs
 {
     public class VideoDTO
     {
-        public int Id { get; set; }
         public string? Title { get; set; }
         public string? Name { get; set; } 
         public string? VideoUrl { get; set; }
