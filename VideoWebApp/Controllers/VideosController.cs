@@ -71,13 +71,24 @@ namespace VideoWebApp.Controllers
         [HttpGet("Retrieve/{fileName}")]
         public IActionResult RetrieveVideo(string containerName, string fileName)
         {
-            if (String.IsNullOrEmpty(containerName) || String.IsNullOrEmpty(fileName));
+            // Step 1: Validate input parameters
+            if (string.IsNullOrWhiteSpace(containerName) || string.IsNullOrWhiteSpace(fileName))
             {
-                return BadRequest("Container name or file name is null or empty.");
+                return BadRequest("Container name and file name must be provided.");
             }
-        }
-        
 
+            // Step 2: Call _azureService.RetrieveFileFromStorage
+            var fileUrl = _azureService.RetrieveFileFromStorage(containerName, fileName);
+
+            // Step 3: Check if the returned URI is null
+            if (fileUrl == null)
+            {
+                return NotFound($"File '{fileName}' not found in container '{containerName}'.");
+            }
+
+            // Step 4: Return the file URI
+            return Ok(new { Url = fileUrl });
+        }
         
         
     }
