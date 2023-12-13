@@ -14,6 +14,7 @@ namespace VideoWebApp.Interface
         Task DeleteFileFromStorage(string containerName, string FileName);
         Task<IEnumerable<string>> ListFilesInContainer(string containerName);
         Task<string> ConvertVideoFileAsync(string inputFilePath, string outputFilePath);
+        Task<IEnumerable<string>> ListVideoUrlsAsync(string containerName);
     }
 
 }

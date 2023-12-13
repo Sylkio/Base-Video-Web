@@ -118,6 +118,20 @@ namespace VideoWebApp.Services
                 return null;  
             }
         }
+        public async Task<IEnumerable<string>> ListVideoUrlsAsync(string containerName)
+        {
+            var blobServiceClient = new BlobServiceClient(_storageConnectionString);
+            var blobContainerClient = blobServiceClient.GetBlobContainerClient(containerName);
+            var videoUrls = new List<string>();
+
+            await foreach (var blobItem in blobContainerClient.GetBlobsAsync())
+            {
+                var blobClient = blobContainerClient.GetBlobClient(blobItem.Name);
+                videoUrls.Add(blobClient.Uri.AbsoluteUri);
+            }
+
+            return videoUrls;
+        }
 
         public async Task<String> ConvertVideoFileAsync(string inputFilePath, string outputFilePath)
         {
@@ -127,7 +141,7 @@ namespace VideoWebApp.Services
                 StartInfo = new ProcessStartInfo 
                 {
                     FileName = "ffmpeg", 
-                    Arguments = $"-i \"{inputFilePath}\" \"{outputFilePath}\"",
+                    Arguments = $"-i \"{inputFilePath}\" -c:v libx264 -c:a aac \"{outputFilePath}\"",
                     RedirectStandardOutput = true,
                     RedirectStandardError = true,
                     UseShellExecute = false,

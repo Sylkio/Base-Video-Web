@@ -13,7 +13,7 @@ namespace VideoWebApp.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class VideosController : ControllerBase
+    public class VideosController : Controller
     {
          private readonly IAzureService _azureService; 
          private readonly ApplicationDbContext _context;
@@ -89,6 +89,19 @@ namespace VideoWebApp.Controllers
             // Step 4: Return the file URI
             return Ok(new { Url = fileUrl });
         }
+
+        [HttpGet("Player/{fileName}")]
+        public IActionResult VideoPlayer(string containerName, string fileName)
+        {
+            var fileUrl = _azureService.RetrieveFileFromStorage(containerName, fileName);
+            if (fileUrl == null)
+            {
+                return NotFound();
+            }
+
+            return View("IndexModel", new VideoPlayerModel { VideoUrl = fileUrl });
+        }
+        
         
         
     }
