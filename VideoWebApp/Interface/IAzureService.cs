@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using VideoWebApp.Models;
 
 namespace VideoWebApp.Interface
 {
@@ -14,7 +15,7 @@ namespace VideoWebApp.Interface
         Task DeleteFileFromStorage(string containerName, string FileName);
         Task<IEnumerable<string>> ListFilesInContainer(string containerName);
         Task<string> ConvertVideoFileAsync(string inputFilePath, string outputFilePath);
-        Task<IEnumerable<string>> ListVideoUrlsAsync(string containerName);
+        Task<IEnumerable<VideoPlayerModel>> ListVideoUrlsAsync(string containerName);
     }
 
 }

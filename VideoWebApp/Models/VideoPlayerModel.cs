@@ -8,5 +8,6 @@ namespace VideoWebApp.Models
     public class VideoPlayerModel
     {
        public string VideoUrl { get; set; } 
+       public string VideoTitle { get; set; }
     }
 }

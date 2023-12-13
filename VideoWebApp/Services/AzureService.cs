@@ -115,10 +115,10 @@ namespace VideoWebApp.Services
             catch (Exception ex)
             {
                 _logger.LogError($"Error listing files: {ex.Message}");
-                return null;  
+                return null;
             }
         }
-        public async Task<IEnumerable<string>> ListVideoUrlsAsync(string containerName)
+        /*public async Task<IEnumerable<string>> ListVideoUrlsAsync(string containerName)
         {
             var blobServiceClient = new BlobServiceClient(_storageConnectionString);
             var blobContainerClient = blobServiceClient.GetBlobContainerClient(containerName);
@@ -131,6 +131,26 @@ namespace VideoWebApp.Services
             }
 
             return videoUrls;
+        }*/
+
+        public async Task<IEnumerable<VideoPlayerModel>> ListVideoUrlsAsync(string containerName)
+        {
+            var blobServiceClient = new BlobServiceClient(_storageConnectionString);
+            var blobContainerClient = blobServiceClient.GetBlobContainerClient(containerName);
+            var videoList = new List<VideoPlayerModel>();
+
+            await foreach (var blobItem in blobContainerClient.GetBlobsAsync())
+            {
+                var blobClient = blobContainerClient.GetBlobClient(blobItem.Name);
+                var videoModel = new VideoPlayerModel
+                {
+                    VideoUrl = blobClient.Uri.AbsoluteUri,
+                    VideoTitle = blobClient.Name 
+                };
+                videoList.Add(videoModel);
+            }
+
+            return videoList;
         }
 
         public async Task<String> ConvertVideoFileAsync(string inputFilePath, string outputFilePath)
