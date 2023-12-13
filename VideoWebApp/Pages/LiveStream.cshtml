@@ -1,0 +1,26 @@
+﻿@page
+@model VideoWebapp.Pages.LiveStreamModel
+@{
+}
+<a href="/">GO BACK</a>  <br />
+
+<video id="localVideo" autoplay muted style="transform:scaleX(-1);"></video>
+
+<a>make a new group call</a> @* ska ta en person till ny gruppsamtal med länk till den som finns där*@
+<input placeholder="paste call link"/> @* delta i någons gruppsamtal genom paste link hit och ha en onclick som tar vid form submission tar han fram *@
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var localVideo = document.getElementById('localVideo');
+
+        if (navigator.mediaDevices.getUserMedia) {
+            navigator.mediaDevices.getUserMedia({ video: true })
+                .then(function (stream) {
+                    localVideo.srcObject = stream;
+                })
+                .catch(function (error) {
+                    console.log("Something went wrong!");
+                });
+        }
+    });
+</script>
