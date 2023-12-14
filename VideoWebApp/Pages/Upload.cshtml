@@ -1,0 +1,45 @@
+﻿@page
+@model VideoWebapp.Pages.UploadModel
+@{
+}
+<a href="/">Go back</a>
+<form method="post" action="/api/Videos/Upload" enctype="multipart/form-data">
+    <div>
+        <label for="file">Select Video File:</label>
+        <input type="file" id="file" name="File" required />
+    </div>
+    <div>
+        <label for="videoTitle">Video Title:</label>
+        <input type="text" id="videoTitle" name="VideoTitle" required />
+    </div>
+    <div>
+        <label for="videoDescription">Video Description:</label>
+        <textarea id="videoDescription" name="VideoDescription" required></textarea>
+    </div>
+    <button type="submit">Upload Video</button>
+</form>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const form = document.querySelector('form');
+        form.onsubmit = async function (event) {
+            event.preventDefault();
+            const formData = new FormData(form);
+            try {
+                alert('Uploading video, please wait...');
+                const response = await fetch(form.action, {
+                    method: 'POST',
+                    body: formData
+                });
+                if (response.ok) {
+                    alert('Video uploaded successfully!');
+                    window.location.reload(); // Reload the page to show the new video
+                } else {
+                    alert('Failed to upload video. Please try again.');
+                }
+            } catch (error) {
+                alert('An error occurred during upload.');
+            }
+        };
+    });
+</script>
