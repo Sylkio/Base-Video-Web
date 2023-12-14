@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using VideoWebApp.Data;
 using VideoWebApp.Interface;
 using VideoWebApp.Models;
+using VideoWebApp.Models.DTOs;
 
 
 namespace VideoWebApp.Controllers
@@ -33,21 +34,18 @@ namespace VideoWebApp.Controllers
         }
 
         [HttpPost("Upload")]
-        public async Task<IActionResult> UploadVideo(string containerName, IFormFile file)
+        public async Task<IActionResult> UploadVideo([FromForm] VideoUploadDto uploadDto)
         {
-            if (file == null || file.Length == 0)
-            {
-            return BadRequest("No file selected");
-            }
+            string containerName = "videos";
             try
             {
                var tempFilePath = Path.GetTempFileName();
                using (var stream = System.IO.File.Create(tempFilePath))
                {
-                   await file.CopyToAsync(stream);
+                   await uploadDto.File.CopyToAsync(stream);
                }
 
-               var uploadResult = await _azureService.UploadFileToBlobAsync(containerName, tempFilePath);
+                var uploadResult = await _azureService.UploadFileToBlobAsync(containerName, tempFilePath);
 
                //Clean up the temporary file
 
@@ -55,11 +53,21 @@ namespace VideoWebApp.Controllers
 
                //Handle the result
 
-                if (uploadResult == null)
+                 if (uploadResult == null)
                 {
-                     return BadRequest("Could not upload the file");
+                    return BadRequest("Could not upload the file");
                 }
-                 return Ok(new { FileUrl = uploadResult });
+                var video = new Video
+                {
+                    Title = uploadDto.VideoTitle,
+                    Description = uploadDto.VideoDescription,
+                    VideoUrl = uploadResult
+                    
+                };
+                _context.Videos.Add(video);
+                await _context.SaveChangesAsync();
+
+                return Ok(new { FileUrl = uploadResult });
 
             }
             catch (Exception ex)
@@ -99,7 +107,7 @@ namespace VideoWebApp.Controllers
                 return NotFound();
             }
 
-            return View("IndexModel", new VideoPlayerModel { VideoUrl = fileUrl });
+            return View("WatchVideo", new VideoPlayerModel { VideoUrl = fileUrl });
         }
         
         
