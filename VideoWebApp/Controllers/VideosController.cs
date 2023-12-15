@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using VideoWebApp.Data;
 using VideoWebApp.Interface;
 using VideoWebApp.Models;
@@ -18,11 +19,13 @@ namespace VideoWebApp.Controllers
     {
          private readonly IAzureService _azureService; 
          private readonly ApplicationDbContext _context;
+         private readonly ILogger<VideosController> _logger;
         
-        public VideosController(ApplicationDbContext context, IAzureService azureService)
+        public VideosController(ApplicationDbContext context, IAzureService azureService, ILogger<VideosController> logger)
         {
             _context = context;
             _azureService = azureService ?? throw new ArgumentNullException(nameof(azureService));
+            _logger = logger;
         }
 
         [HttpGet]
@@ -72,9 +75,9 @@ namespace VideoWebApp.Controllers
             }
             catch (Exception ex)
             {
-                 return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while uploading the file.");
+                 _logger.LogError(ex, "An error occurred while uploading the file."); // Use the logger
+                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while uploading the file.");
             }
-
         }
         [HttpGet("Retrieve/{fileName}")]
         public IActionResult RetrieveVideo(string containerName, string fileName)
@@ -114,5 +117,5 @@ namespace VideoWebApp.Controllers
         
     }
 
-    
 }
+    
