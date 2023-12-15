@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "WnV/L9mKF3Zw3QQ1Z4W0Ne2bM3WCvaH8oERa+MbzSgv/FqSKobnMMa04lQ3GZVsaghzNB08CSWwaoogBuOZBgg==",
+  "dgSpecHash": "LDPi5zq4A0nPf4E0h1dHZ+/2Qqlu83igHLMpoLviGN8LWheG1VLUUwZvwSIrP1RJAvUj3S2/h/NnzeBdDYkG6g==",
   "success": true,
-  "projectFilePath": "C:\\Users\\kunge\\OneDrive\\Dokument\\GitHub\\Base-Video-Web\\VideoWebApp\\VideoWebapp.csproj",
+  "projectFilePath": "C:\\Users\\kunge\\OneDrive\\Dokument\\GitHub\\Base-Video-Web\\videowebapp\\VideoWebapp.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\kunge\\.nuget\\packages\\azure.core\\1.36.0\\azure.core.1.36.0.nupkg.sha512",
     "C:\\Users\\kunge\\.nuget\\packages\\azure.identity\\1.7.0\\azure.identity.1.7.0.nupkg.sha512",
