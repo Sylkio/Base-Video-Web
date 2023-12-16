@@ -4,9 +4,11 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using VideoWebApp.Data;
 using VideoWebApp.Interface;
 using VideoWebApp.Models;
+using VideoWebApp.Models.DTOs;
 
 
 namespace VideoWebApp.Controllers
@@ -17,11 +19,13 @@ namespace VideoWebApp.Controllers
     {
          private readonly IAzureService _azureService; 
          private readonly ApplicationDbContext _context;
+         private readonly ILogger<VideosController> _logger;
         
-        public VideosController(ApplicationDbContext context, IAzureService azureService)
+        public VideosController(ApplicationDbContext context, IAzureService azureService, ILogger<VideosController> logger)
         {
             _context = context;
             _azureService = azureService ?? throw new ArgumentNullException(nameof(azureService));
+            _logger = logger;
         }
 
         [HttpGet]
@@ -33,21 +37,18 @@ namespace VideoWebApp.Controllers
         }
 
         [HttpPost("Upload")]
-        public async Task<IActionResult> UploadVideo(string containerName, IFormFile file)
+        public async Task<IActionResult> UploadVideo([FromForm] VideoUploadDto uploadDto)
         {
-            if (file == null || file.Length == 0)
-            {
-            return BadRequest("No file selected");
-            }
+            string containerName = "videos";
             try
             {
                var tempFilePath = Path.GetTempFileName();
                using (var stream = System.IO.File.Create(tempFilePath))
                {
-                   await file.CopyToAsync(stream);
+                   await uploadDto.File.CopyToAsync(stream);
                }
 
-               var uploadResult = await _azureService.UploadFileToBlobAsync(containerName, tempFilePath);
+                var uploadResult = await _azureService.UploadFileToBlobAsync(containerName, tempFilePath);
 
                //Clean up the temporary file
 
@@ -55,18 +56,28 @@ namespace VideoWebApp.Controllers
 
                //Handle the result
 
-                if (uploadResult == null)
+                 if (uploadResult == null)
                 {
-                     return BadRequest("Could not upload the file");
+                    return BadRequest("Could not upload the file");
                 }
-                 return Ok(new { FileUrl = uploadResult });
+                var video = new Video
+                {
+                    Title = uploadDto.VideoTitle,
+                    Description = uploadDto.VideoDescription,
+                    VideoUrl = uploadResult
+                    
+                };
+                _context.Videos.Add(video);
+                await _context.SaveChangesAsync();
+
+                return Ok(new { FileUrl = uploadResult });
 
             }
             catch (Exception ex)
             {
-                 return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while uploading the file.");
+                 _logger.LogError(ex, "An error occurred while uploading the file."); // Use the logger
+                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while uploading the file.");
             }
-
         }
         [HttpGet("Retrieve/{fileName}")]
         public IActionResult RetrieveVideo(string containerName, string fileName)
@@ -99,12 +110,12 @@ namespace VideoWebApp.Controllers
                 return NotFound();
             }
 
-            return View("IndexModel", new VideoPlayerModel { VideoUrl = fileUrl });
+            return View("WatchVideo", new VideoPlayerModel { VideoUrl = fileUrl });
         }
         
         
         
     }
 
-    
 }
+    

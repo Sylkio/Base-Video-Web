@@ -1,10 +1,9 @@
 ﻿@page
 @model VideoWebapp.Pages.WatchVideoModel
-@{
-}
+
+<h1>Watch Videos</h1>
 
 <a href="/">GO BACK</a>
-
 @if (Model.Videos != null && Model.Videos.Any())
 {
     <div class="videos-container">
@@ -12,7 +11,7 @@
         {
             <div class="video-item">
                 <h3>@video.VideoTitle</h3>
-                <video width="640" height="360" controls onerror="handleVideoError(this)">
+                <video width="640" height="360" controls>
                     <source src="@video.VideoUrl" type="video/mp4">
                     Your browser does not support the video tag.
                 </video>

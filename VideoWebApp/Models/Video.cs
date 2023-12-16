@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -7,6 +8,7 @@ namespace VideoWebApp.Models
 {
     public class Video
     {
+        [Key]
         public int Id { get; set; }
         public string? Title { get; set; }
         public string? Name { get; set; } 
@@ -18,11 +20,7 @@ namespace VideoWebApp.Models
         public int Views { get; set; }
         public DateTime UploadDate { get; set; }
         public string? Uploader { get; set; }
-        public List<string>? Tags { get; set; }
         public string? BlobStorageUri { get; set; }
-
-
-
 
     }
 }
