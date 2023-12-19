@@ -9,7 +9,7 @@
 *.user
 *.userosscache
 *.sln.docstates
-VideoWebApp/appsettings.json
+VideoWebApp/appsettings.Development.json
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
