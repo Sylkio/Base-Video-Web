@@ -40,44 +40,38 @@ namespace VideoWebApp.Controllers
         public async Task<IActionResult> UploadVideo([FromForm] VideoUploadDto uploadDto)
         {
             string containerName = "videos";
-            try
-            {
+            
                var tempFilePath = Path.GetTempFileName();
-               using (var stream = System.IO.File.Create(tempFilePath))
-               {
-                   await uploadDto.File.CopyToAsync(stream);
-               }
+        using (var stream = System.IO.File.Create(tempFilePath))
+        {
+            await uploadDto.File.CopyToAsync(stream);
+        }
 
-                var uploadResult = await _azureService.UploadFileToBlobAsync(containerName, tempFilePath);
+        string convertedFilePath = Path.GetTempFileName();
+        await _azureService.ConvertVideoFileAsync(tempFilePath, convertedFilePath);
 
-               //Clean up the temporary file
+        var uploadResult = await _azureService.UploadFileToBlobAsync(containerName, convertedFilePath);
 
-               System.IO.File.Delete(tempFilePath);
+        // Clean up the temporary files
+        System.IO.File.Delete(tempFilePath);
+        System.IO.File.Delete(convertedFilePath);
 
-               //Handle the result
+        if (uploadResult == null)
+        {
+            return BadRequest("Could not upload the file");
+        }
+        var video = new Video
+        {
+            Title = uploadDto.VideoTitle,
+            Description = uploadDto.VideoDescription,
+            VideoUrl = uploadResult
+        };
+        _context.Videos.Add(video);
+        await _context.SaveChangesAsync();
 
-                 if (uploadResult == null)
-                {
-                    return BadRequest("Could not upload the file");
-                }
-                var video = new Video
-                {
-                    Title = uploadDto.VideoTitle,
-                    Description = uploadDto.VideoDescription,
-                    VideoUrl = uploadResult
-                    
-                };
-                _context.Videos.Add(video);
-                await _context.SaveChangesAsync();
+        return Ok(new { FileUrl = uploadResult });
 
-                return Ok(new { FileUrl = uploadResult });
-
-            }
-            catch (Exception ex)
-            {
-                 _logger.LogError(ex, "An error occurred while uploading the file."); // Use the logger
-                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while uploading the file.");
-            }
+            
         }
         [HttpGet("Retrieve/{fileName}")]
         public IActionResult RetrieveVideo(string containerName, string fileName)

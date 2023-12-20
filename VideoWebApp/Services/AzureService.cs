@@ -153,14 +153,14 @@ namespace VideoWebApp.Services
             return videoList;
         }
 
-        public async Task<String> ConvertVideoFileAsync(string inputFilePath, string outputFilePath)
+        public async Task<string> ConvertVideoFileAsync(string inputFilePath, string outputFilePath)
         {
-            
+            outputFilePath = Path.ChangeExtension(outputFilePath, ".mp4");
             var process = new Process
             {
-                StartInfo = new ProcessStartInfo 
+                StartInfo = new ProcessStartInfo
                 {
-                    FileName = "ffmpeg", 
+                    FileName = "ffmpeg",
                     Arguments = $"-i \"{inputFilePath}\" -c:v libx264 -c:a aac \"{outputFilePath}\"",
                     RedirectStandardOutput = true,
                     RedirectStandardError = true,
@@ -169,36 +169,36 @@ namespace VideoWebApp.Services
                 }
             };
 
-
-            // FFMPEG PROCESS FOR CONVERSION
+            // Start FFmpeg process
             process.Start();
 
-            string output = await process.StandardOutput.ReadToEndAsync();
-            string error = await process.StandardError.ReadToEndAsync();
+            // Read output and error asynchronously
+            var readOutputTask = process.StandardOutput.ReadToEndAsync();
+            var readErrorTask = process.StandardError.ReadToEndAsync();
+
+            // Wait for FFmpeg process to complete
+            await Task.WhenAny(Task.Run(() => process.WaitForExit()), readOutputTask, readErrorTask);
+
+            // Ensure both stdout and stderr have been read
+            string output = await readOutputTask;
+            string error = await readErrorTask;
 
             _logger.LogInformation($"FFmpeg output: {output}");
-            if(!string.IsNullOrEmpty(error))
+            if (!string.IsNullOrEmpty(error) && !error.StartsWith("ffmpeg version"))
             {
                 _logger.LogError($"FFmpeg error: {error}");
                 throw new InvalidOperationException("FFmpeg conversion failed.");
             }
+            
 
-             
-            process.WaitForExit();
-
-          
-            if (process.ExitCode == 0)
-            {
-                return outputFilePath;
-            }
-            else
+            if (process.ExitCode != 0)
             {
                 throw new InvalidOperationException("FFmpeg did not exit correctly. Exit code: " + process.ExitCode);
             }
 
-
-            
-            
+            // Log and return the output file path
+            Console.WriteLine("Reached line 193");
+            return outputFilePath;
         }
 
         public async Task<string> UploadFileToBlobAsync(string containerName, string filePath)

@@ -399,3 +399,5 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
+VideoWebApp/appsettings.json
+VideoWebApp/appsettings.Development.json.Template
