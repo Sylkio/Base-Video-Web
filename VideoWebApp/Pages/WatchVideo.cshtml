@@ -1,5 +1,6 @@
 ﻿@page
 @model VideoWebapp.Pages.WatchVideoModel
+@inject VideoWebApp.Services.AzureService AzureService
 
 <h1>Watch Videos</h1>
 
@@ -12,7 +13,7 @@
             <div class="video-item">
                 <h3>@video.VideoTitle</h3>
                 <video width="640" height="360" controls>
-                    <source src="@video.VideoUrl" type="video/mp4">
+                    <source src="@video.VideoUrl" type="@AzureService.GetMimeType(video.VideoUrl)">
                     Your browser does not support the video tag.
                 </video>
             </div>
