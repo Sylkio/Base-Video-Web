@@ -82,6 +82,21 @@ namespace VideoWebApp.Services
                 return null;
             }
         }
+        public string GetMimeType(string fileName)
+        {
+            var extension = Path.GetExtension(fileName).ToLower();
+            return extension switch
+            {
+                ".png" => "image/png",
+                ".jpg" => "image/jpeg",
+                ".jpeg" => "image/jpeg",
+                ".mp4" => "video/mp4",
+                ".mov" => "video/quicktime",
+                ".webm" => "video/webm",
+                ".hevc" => "video/hevc",
+                _ => "application/octet-stream"
+            };
+        }
         
         public async Task DeleteFileFromStorage(string containerName, string fileName)
         {
@@ -212,6 +227,7 @@ namespace VideoWebApp.Services
                 var fileName = Path.GetFileName(filePath);
                 var blobClient = blobContainerClient.GetBlobClient(fileName);
 
+                // checks if it's type MP4, MOV, HEVC and WebM up to 200 MB
                 // Upload file
                 await using var fileStream = File.OpenRead(filePath);
                 await blobClient.UploadAsync(fileStream, true);

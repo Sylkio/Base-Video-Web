@@ -39,13 +39,25 @@ namespace VideoWebApp.Controllers
         [HttpPost("Upload")]
         public async Task<IActionResult> UploadVideo([FromForm] VideoUploadDto uploadDto)
         {
-            string containerName = "videos";
-            
-               var tempFilePath = Path.GetTempFileName();
-        using (var stream = System.IO.File.Create(tempFilePath))
-        {
-            await uploadDto.File.CopyToAsync(stream);
-        }
+
+            if (uploadDto.File.Length > 200 * 1024 * 1024)
+            {
+                return BadRequest("File size should not exceed 200 MB.");
+            }
+
+            // Check file type
+            string[] allowedTypes = { "video/mp4", "video/quicktime", "video/hevc", "video/webm" };
+            if (!allowedTypes.Contains(uploadDto.File.ContentType))
+            {
+                return BadRequest("Invalid file type. Allowed types are MP4, MOV, HEVC, WebM");
+            }
+                    string containerName = "videos";
+
+            var tempFilePath = Path.GetTempFileName();
+            using (var stream = System.IO.File.Create(tempFilePath))
+                {
+                    await uploadDto.File.CopyToAsync(stream);
+                }
 
         string convertedFilePath = Path.GetTempFileName();
         await _azureService.ConvertVideoFileAsync(tempFilePath, convertedFilePath);

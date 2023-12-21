@@ -6,7 +6,7 @@
 <form method="post" action="/api/Videos/Upload" enctype="multipart/form-data">
     <div>
         <label for="file">Select Video File:</label>
-        <input type="file" id="file" name="File" required />
+        <input type="file" id="file" name="File" accept=".mp4, .mkv " required />
     </div>
     <div>
         <label for="videoTitle">Video Title:</label>
@@ -25,6 +25,18 @@
         form.onsubmit = async function (event) {
             console.log('submitting form...');
             event.preventDefault();
+            const fileInput = document.getElementsById('file');
+            if (fileInput.files.length === 0) {
+                alert('Please select a video file to upload.');
+                return;
+            }
+
+            if (file.size > 200 * 1024 * 1024) {
+                alert('Please select a video file smaller than 200MB.');
+                return;
+            }
+
+
             const formData = new FormData(form);
             try {
                 alert('Uploading video, please wait...');
