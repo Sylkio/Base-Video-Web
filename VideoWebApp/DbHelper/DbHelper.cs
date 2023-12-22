@@ -15,7 +15,6 @@ namespace VideoWebapp.DbHelper
 
         public async Task<List<VideoPlayerModel>> GetVideoMetadataAsync()
         {
-            // Assuming you have a DbSet<Video> in your context
             return await _context.Videos.Select(v => new VideoPlayerModel
             {
                 VideoUrl = v.VideoUrl,

@@ -137,21 +137,7 @@ namespace VideoWebApp.Services
                 return null;
             }
         }
-        /*public async Task<IEnumerable<string>> ListVideoUrlsAsync(string containerName)
-        {
-            var blobServiceClient = new BlobServiceClient(_storageConnectionString);
-            var blobContainerClient = blobServiceClient.GetBlobContainerClient(containerName);
-            var videoUrls = new List<string>();
-
-            await foreach (var blobItem in blobContainerClient.GetBlobsAsync())
-            {
-                var blobClient = blobContainerClient.GetBlobClient(blobItem.Name);
-                videoUrls.Add(blobClient.Uri.AbsoluteUri);
-            }
-
-            return videoUrls;
-        }*/
-
+      
         public async Task<IEnumerable<VideoPlayerModel>> ListVideoUrlsAsync(string containerName)
         {
             var blobServiceClient = new BlobServiceClient(_storageConnectionString);
