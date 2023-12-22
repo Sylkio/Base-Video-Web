@@ -11,6 +11,8 @@ using VideoWebApp.Models;
 using Azure.Storage.Blobs.Models;
 using System.Diagnostics;
 using Microsoft.Extensions.Logging;
+using VideoWebapp.DbHelper;
+
 namespace VideoWebApp.Services
 {
     public class AzureService : IAzureService
@@ -19,12 +21,14 @@ namespace VideoWebApp.Services
         private readonly string _storageConnectionString;
         private readonly string _storageContainerName;
         private readonly ILogger<AzureService> _logger;
+        private readonly DbHelper _dbHelper;
 
-        public AzureService(IConfiguration configuration, ILogger<AzureService> Logger)
+        public AzureService(IConfiguration configuration, ILogger<AzureService> Logger, DbHelper dbHelper)
         {
             _storageConnectionString = configuration.GetValue<string>("BlobConnectionString");
             _storageContainerName = configuration.GetValue<string>("BlobContainerName");
             _logger = Logger;
+            _dbHelper = dbHelper;
         }
         #endregion
 
@@ -152,17 +156,35 @@ namespace VideoWebApp.Services
         {
             var blobServiceClient = new BlobServiceClient(_storageConnectionString);
             var blobContainerClient = blobServiceClient.GetBlobContainerClient(containerName);
+            var videoMetadata = await _dbHelper.GetVideoMetadataAsync();
             var videoList = new List<VideoPlayerModel>();
 
             await foreach (var blobItem in blobContainerClient.GetBlobsAsync())
             {
                 var blobClient = blobContainerClient.GetBlobClient(blobItem.Name);
-                var videoModel = new VideoPlayerModel
+                var videoUrl = blobClient.Uri.AbsoluteUri;
+
+                var matchVideo = videoMetadata.FirstOrDefault(v => v.VideoUrl == videoUrl);
+                if (matchVideo != null)
                 {
-                    VideoUrl = blobClient.Uri.AbsoluteUri,
-                    VideoTitle = blobClient.Name 
-                };
-                videoList.Add(videoModel);
+                    var videoModel = new VideoPlayerModel
+                    {
+                        VideoUrl = videoUrl,
+                        VideoTitle = matchVideo.VideoTitle,
+                        VideoDescription = matchVideo.VideoDescription
+                    };
+                    videoList.Add(videoModel);
+                }
+                else
+                {
+                    var videoModel = new VideoPlayerModel
+                    {
+                        VideoUrl = videoUrl,
+                        VideoTitle = "UNKNOWN TITLE",
+                        VideoDescription = "UNKNOWN DESCRIPTION"
+                    };
+                    videoList.Add(videoModel);
+                }
             }
 
             return videoList;

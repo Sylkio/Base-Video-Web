@@ -1,5 +1,6 @@
 using Azure.Storage.Blobs;
 using Microsoft.EntityFrameworkCore;
+using VideoWebapp.DbHelper;
 using VideoWebApp.Data;
 using VideoWebApp.Interface;
 using VideoWebApp.Services;
@@ -18,6 +19,7 @@ builder.Services.AddRazorPages();
 
 // Register AzureService
 builder.Services.AddScoped<IAzureService, AzureService>();
+builder.Services.AddScoped<DbHelper>();
 
 // Add CORS policy
 builder.Services.AddCors(option => {
