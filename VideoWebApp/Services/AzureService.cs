@@ -204,7 +204,7 @@ namespace VideoWebApp.Services
                 _logger.LogError($"FFmpeg error: {error}");
                 throw new InvalidOperationException("FFmpeg conversion failed.");
             }
-            
+
 
             if (process.ExitCode != 0)
             {
@@ -216,7 +216,7 @@ namespace VideoWebApp.Services
             return outputFilePath;
         }
 
-        public async Task<string> UploadFileToBlobAsync(string containerName, string filePath)
+        public async Task<string> UploadFileToBlobAsync(string containerName, string convertedFilePath )
         {
             try 
             {
@@ -224,12 +224,12 @@ namespace VideoWebApp.Services
                 var blobContainerClient = blobServiceClient.GetBlobContainerClient(containerName);
                 await blobContainerClient.CreateIfNotExistsAsync();
 
-                var fileName = Path.GetFileName(filePath);
+                var fileName = Path.GetFileName(convertedFilePath );
                 var blobClient = blobContainerClient.GetBlobClient(fileName);
 
                 // checks if it's type MP4, MOV, HEVC and WebM up to 200 MB
                 // Upload file
-                await using var fileStream = File.OpenRead(filePath);
+                await using var fileStream = File.OpenRead(convertedFilePath );
                 await blobClient.UploadAsync(fileStream, true);
 
                 _logger.LogInformation($"Uploaded file '{fileName}' to container '{containerName}'.");

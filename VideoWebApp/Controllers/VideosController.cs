@@ -35,23 +35,21 @@ namespace VideoWebApp.Controllers
             var videos = await _context.Videos.ToListAsync();
             return Ok(videos);
         }
-
         [HttpPost("Upload")]
         public async Task<IActionResult> UploadVideo([FromForm] VideoUploadDto uploadDto)
         {
-
             if (uploadDto.File.Length > 200 * 1024 * 1024)
             {
                 return BadRequest("File size should not exceed 200 MB.");
             }
 
-            // Check file type
-            string[] allowedTypes = { "video/mp4", "video/quicktime", "video/hevc", "video/webm" };
-            if (!allowedTypes.Contains(uploadDto.File.ContentType))
-            {
-                return BadRequest("Invalid file type. Allowed types are MP4, MOV, HEVC, WebM");
-            }
-                    string containerName = "videos";
+                // Check file type
+                string[] allowedTypes = { "video/mp4", "video/quicktime", "video/hevc", "video/webm" };
+                if (!allowedTypes.Contains(uploadDto.File.ContentType))
+                {
+                    return BadRequest("Invalid file type. Allowed types are MP4, MOV, HEVC, WebM");
+                }
+                        string containerName = "videos";
 
             var tempFilePath = Path.GetTempFileName();
             using (var stream = System.IO.File.Create(tempFilePath))
@@ -59,32 +57,32 @@ namespace VideoWebApp.Controllers
                     await uploadDto.File.CopyToAsync(stream);
                 }
 
-        string convertedFilePath = Path.GetTempFileName();
-        await _azureService.ConvertVideoFileAsync(tempFilePath, convertedFilePath);
+                string convertedFileName = Path.GetFileNameWithoutExtension(uploadDto.File.FileName) + ".mp4";
+                string convertedFilePath = Path.Combine(Path.GetTempPath(), convertedFileName);
+                await _azureService.ConvertVideoFileAsync(tempFilePath, convertedFilePath);
 
-        var uploadResult = await _azureService.UploadFileToBlobAsync(containerName, convertedFilePath);
+                var uploadResult = await _azureService.UploadFileToBlobAsync(containerName, convertedFilePath);
 
-        // Clean up the temporary files
-        System.IO.File.Delete(tempFilePath);
-        System.IO.File.Delete(convertedFilePath);
+                // Clean up the temporary files
+                System.IO.File.Delete(tempFilePath);
+                System.IO.File.Delete(convertedFilePath);
 
-        if (uploadResult == null)
-        {
-            return BadRequest("Could not upload the file");
+                if (uploadResult == null)
+                {
+                    return BadRequest("Could not upload the file");
+                }
+                var video = new Video
+                {
+                    Title = uploadDto.VideoTitle,
+                    Description = uploadDto.VideoDescription,
+                    VideoUrl = uploadResult
+                };
+                _context.Videos.Add(video);
+                await _context.SaveChangesAsync();
+
+                return Ok(new { FileUrl = uploadResult });
         }
-        var video = new Video
-        {
-            Title = uploadDto.VideoTitle,
-            Description = uploadDto.VideoDescription,
-            VideoUrl = uploadResult
-        };
-        _context.Videos.Add(video);
-        await _context.SaveChangesAsync();
-
-        return Ok(new { FileUrl = uploadResult });
-
-            
-        }
+        
         [HttpGet("Retrieve/{fileName}")]
         public IActionResult RetrieveVideo(string containerName, string fileName)
         {
