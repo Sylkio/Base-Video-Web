@@ -16,4 +16,9 @@ namespace VideoWebapp.Hubs
             return base.OnDisconnectedAsync(exception);
         }
     }
+
+    public static class LivestreamUsers
+    {
+        public static IDictionary<string, string> list = new Dictionary<string, string>();
+    }
 }
