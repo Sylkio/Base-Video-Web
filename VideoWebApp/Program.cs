@@ -4,11 +4,13 @@ using VideoWebapp.DbHelper;
 using VideoWebApp.Data;
 using VideoWebApp.Interface;
 using VideoWebApp.Services;
+using VideoWebapp.Hubs;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllers();
+builder.Services.AddSignalR();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
@@ -63,5 +65,6 @@ app.UseCors("CorsVideoPolicy");
 
 app.MapControllers();
 app.MapRazorPages();
+app.MapHub<LivestreamHub>("/livestreamhub");
 
 app.Run();

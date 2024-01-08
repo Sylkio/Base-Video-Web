@@ -5,8 +5,9 @@ namespace VideoWebapp.Pages
 {
     public class LiveStreamModel : PageModel
     {
-        public void OnGet()
+        public IActionResult OnPost()
         {
+            return Redirect($"/LiveRoom/{Guid.NewGuid()}");
         }
     }
 }
