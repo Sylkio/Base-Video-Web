@@ -16,7 +16,7 @@ builder.Services.AddSwaggerGen(c =>
 });
 
 builder.Services.AddRazorPages();
-
+builder.Services.AddSignalR();
 // Register AzureService
 builder.Services.AddScoped<IAzureService, AzureService>();
 builder.Services.AddScoped<DbHelper>();
