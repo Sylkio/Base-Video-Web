@@ -22,3 +22,4 @@ namespace VideoWebapp.Hubs
         public static IDictionary<string, string> list = new Dictionary<string, string>();
     }
 }
+b
