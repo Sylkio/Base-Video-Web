@@ -19,7 +19,8 @@ namespace VideoWebapp.DbHelper
             {
                 VideoUrl = v.VideoUrl,
                 VideoTitle = v.Title,
-                VideoDescription = v.Description
+                VideoDescription = v.Description,
+                ThumbnailUrl = v.ThumbnailUrl
             }).ToListAsync();
         }
     }

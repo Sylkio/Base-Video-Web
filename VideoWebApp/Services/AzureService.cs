@@ -157,7 +157,8 @@ namespace VideoWebApp.Services
                     {
                         VideoUrl = videoUrl,
                         VideoTitle = matchVideo.VideoTitle,
-                        VideoDescription = matchVideo.VideoDescription
+                        VideoDescription = matchVideo.VideoDescription,
+                        ThumbnailUrl = matchVideo.ThumbnailUrl
                     };
                     videoList.Add(videoModel);
                 }
@@ -167,7 +168,8 @@ namespace VideoWebApp.Services
                     {
                         VideoUrl = videoUrl,
                         VideoTitle = "UNKNOWN TITLE",
-                        VideoDescription = "UNKNOWN DESCRIPTION"
+                        VideoDescription = "UNKNOWN DESCRIPTION",
+                        ThumbnailUrl = "https://saallan2023.blob.core.windows.net/thumbnails/afb0ed01-b8ad-48fb-b68b-be6d1779fa62.png"
                     };
                     videoList.Add(videoModel);
                 }
@@ -224,7 +226,7 @@ namespace VideoWebApp.Services
             return outputFilePath;
         }
 
-        public async Task<string> UploadFileToBlobAsync(string containerName, string convertedFilePath )
+        public async Task<string> UploadFileToBlobAsync(string containerName, string filePath, string fileName)
         {
             try 
             {
@@ -232,25 +234,21 @@ namespace VideoWebApp.Services
                 var blobContainerClient = blobServiceClient.GetBlobContainerClient(containerName);
                 await blobContainerClient.CreateIfNotExistsAsync();
 
-                var fileName = Path.GetFileName(convertedFilePath );
                 var blobClient = blobContainerClient.GetBlobClient(fileName);
 
-                // checks if it's type MP4, MOV, HEVC and WebM up to 200 MB
-                // Upload file
-                await using var fileStream = File.OpenRead(convertedFilePath );
+                await using var fileStream = File.OpenRead(filePath);
                 await blobClient.UploadAsync(fileStream, true);
 
                 _logger.LogInformation($"Uploaded file '{fileName}' to container '{containerName}'.");
                 return blobClient.Uri.AbsoluteUri;
-
             }
-
             catch (Exception ex)
             {
                 _logger.LogError($"Error uploading file: {ex.Message}");
                 return null;
             }
         }
+
         
         
     }

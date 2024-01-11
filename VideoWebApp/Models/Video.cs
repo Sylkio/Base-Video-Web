@@ -25,4 +25,4 @@ namespace VideoWebApp.Models
         public string? BlobStorageUri { get; set; }
 
     }
-}
+}   

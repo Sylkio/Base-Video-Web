@@ -10,7 +10,7 @@ namespace VideoWebApp.Interface
     {
 
         string GenerateSasToken(string containerName, string blobName);
-        Task<string> UploadFileToBlobAsync(string containerName, string filePath);
+        Task<string> UploadFileToBlobAsync(string containerName, string filePath, string fileName);
         string RetrieveFileFromStorage(string containerName, string FileName);
         Task DeleteFileFromStorage(string containerName, string FileName);
         Task<IEnumerable<string>> ListFilesInContainer(string containerName);

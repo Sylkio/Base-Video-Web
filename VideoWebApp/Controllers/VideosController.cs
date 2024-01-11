@@ -39,72 +39,79 @@ namespace VideoWebApp.Controllers
         [RequestSizeLimit(100_000_000)]
         public async Task<IActionResult> UploadVideo([FromForm] VideoUploadDto uploadDto)
         {
-                if (uploadDto.File.Length > 200 * 1024 * 1024)
-                {
-                    return BadRequest("File size should not exceed 200 MB.");
-                }
+            if (uploadDto.File.Length > 200 * 1024 * 1024)
+            {
+                return BadRequest("File size should not exceed 200 MB.");
+             }
 
-                // Check file type
-                string[] allowedTypes = { "video/mp4", "video/quicktime", "video/hevc", "video/webm" };
-                if (!allowedTypes.Contains(uploadDto.File.ContentType))
-                {
-                    return BadRequest("Invalid file type. Allowed types are MP4, MOV, HEVC, WebM");
-                }
-                        string containerName = "videos";
+            // Check file type
+            string[] allowedTypes = { "video/mp4", "video/quicktime", "video/hevc", "video/webm" };
+            if (!allowedTypes.Contains(uploadDto.File.ContentType))
+            {
+                return BadRequest("Invalid file type. Allowed types are MP4, MOV, HEVC, WebM");
+            }
 
-                var tempFilePath = Path.GetTempFileName();
-                using (var stream = System.IO.File.Create(tempFilePath))
-                    {
-                        await uploadDto.File.CopyToAsync(stream);
-                    }
+            // Handle video file upload
+            string containerName = "videos";
+            var tempFilePath = Path.GetTempFileName();
+            using (var stream = System.IO.File.Create(tempFilePath))
+            {
+                await uploadDto.File.CopyToAsync(stream);
+            }
 
-                string convertedFileName = Path.GetFileNameWithoutExtension(uploadDto.File.FileName) + ".mp4";
-                string convertedFilePath = Path.Combine(Path.GetTempPath(), convertedFileName);
-                await _azureService.ConvertVideoFileAsync(tempFilePath, convertedFilePath);
+            // Corrected upload for video
+            var convertedFileName = Path.GetFileNameWithoutExtension(uploadDto.File.FileName) + ".mp4";
+            var convertedFilePath = Path.Combine(Path.GetTempPath(), convertedFileName);
+            await _azureService.ConvertVideoFileAsync(tempFilePath, convertedFilePath);
 
-                var uploadResult = await _azureService.UploadFileToBlobAsync(containerName, convertedFilePath);
+            var uploadResult = await _azureService.UploadFileToBlobAsync(containerName, convertedFilePath, convertedFileName);
 
-                // Clean up the temporary files
-                System.IO.File.Delete(tempFilePath);
-                System.IO.File.Delete(convertedFilePath);
+            // Clean up the temporary files
+            System.IO.File.Delete(tempFilePath);
+            System.IO.File.Delete(convertedFilePath);
 
-                if (uploadResult == null)
-                {
-                    return BadRequest("Could not upload the file");
-                }
-                var video = new Video
-                {
-                    Title = uploadDto.VideoTitle,
-                    Description = uploadDto.VideoDescription,
-                    VideoUrl = uploadResult
-                };
+            if (uploadResult == null)
+            {
+                return BadRequest("Could not upload the file");
+            }
+
+            var video = new Video
+            {
+                Title = uploadDto.VideoTitle,
+                Description = uploadDto.VideoDescription,
+                VideoUrl = uploadResult
+            };
+
+            // Corrected upload for thumbnail
             if (uploadDto.Thumbnail != null)
             {
-                var thumbnailPath = Path.GetTempFileName(); // Create tmppath
+                var thumbnailExtension = Path.GetExtension(uploadDto.Thumbnail.FileName);
+                var thumbnailFileName = Guid.NewGuid().ToString() + thumbnailExtension;
+                var thumbnailPath = Path.GetTempFileName();
+
                 using (var stream = System.IO.File.Create(thumbnailPath))
                 {
                     await uploadDto.Thumbnail.CopyToAsync(stream);
                 }
 
                 string thumbnailContainer = "thumbnails";
-                var thumbnailUploadResult = await _azureService.UploadFileToBlobAsync(thumbnailContainer, thumbnailPath);
+                var thumbnailUploadResult = await _azureService.UploadFileToBlobAsync(thumbnailContainer, thumbnailPath, thumbnailFileName);
                 System.IO.File.Delete(thumbnailPath);
 
-                if (thumbnailUploadResult == null)
-                {
-                    return BadRequest("Could not upload the thumbnail");
-                }
+                    if (thumbnailUploadResult == null)
+                    {
+                        return BadRequest("Could not upload the thumbnail");
+                    }
                 video.ThumbnailUrl = thumbnailUploadResult;
-            }
-                
 
-               
+                }
+
                 _context.Videos.Add(video);
                 await _context.SaveChangesAsync();
 
                 return Ok(new { FileUrl = uploadResult });
-        }
-        
+            }
+
         [HttpGet("Retrieve/{fileName}")]
         public IActionResult RetrieveVideo(string containerName, string fileName)
         {
@@ -127,7 +134,7 @@ namespace VideoWebApp.Controllers
             return Ok(new { Url = fileUrl });
         }
 
-        [HttpGet("Player/{id}")]
+        [HttpGet("Player/{id}")]    
         public IActionResult VideoPlayer(int id)
         {
             var video = _context.Videos.FirstOrDefault(v => v.Id == id);
@@ -136,12 +143,17 @@ namespace VideoWebApp.Controllers
                 return NotFound();
             }
 
+            if (video.ThumbnailUrl == null)
+            {
+                return BadRequest("Thumbnail is null.");
+            }
+
             var model = new VideoPlayerModel
             {
                 VideoUrl = video.VideoUrl,
                 VideoTitle = video.Title,
                 VideoDescription = video.Description,
-                ThumbnailUrl = video.ThumbnailPath  // Ensure this property exists in your Video model
+                ThumbnailUrl = video.ThumbnailUrl  
             };
 
             return View("WatchVideo", model);

@@ -14,6 +14,7 @@ namespace VideoWebApp.Models
         public string VideoTitle { get; set; }
         public string VideoDescription { get; set; }
         public string ThumbnailUrl { get; set; }
+        public string ThumbnailPath { get; set; }
 
     }
 }
