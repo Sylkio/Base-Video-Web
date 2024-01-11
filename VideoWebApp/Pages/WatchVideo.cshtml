@@ -2,6 +2,7 @@
 @model VideoWebapp.Pages.WatchVideoModel
 
 
+
 <h1>Watch Videos</h1>
 
 <a href="/">GO BACK</a>
@@ -13,11 +14,16 @@
             <div class="video-item">
                 <h3>@video.VideoTitle</h3>
                 <h6>@video.VideoDescription</h6>
+                @if (!string.IsNullOrEmpty(video.ThumbnailUrl))
+                {
+                    <img src="@video.ThumbnailUrl" alt="Video Thumbnail" width="640" height="360">
+                }
                 <video width="640" height="360" controls>
                     <source src="@video.VideoUrl" type="video/mp4">
                     Your browser does not support the video tag.
                 </video>
             </div>
+
         }
     </div>
 }

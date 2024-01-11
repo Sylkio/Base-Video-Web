@@ -14,6 +14,7 @@ namespace VideoWebApp.Models.DTOs
         public IFormFile File { get; set; }
         public string VideoTitle  { get; set; }
         public string VideoDescription { get; set; }
-        
+        public IFormFile Thumbnail { get; set; }
+
     }
 }
