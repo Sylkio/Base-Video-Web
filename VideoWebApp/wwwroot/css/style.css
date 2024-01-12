@@ -1,0 +1,33 @@
+﻿body {
+    font-family: Arial, sans-serif;
+}
+
+#searchBox {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 20px;
+}
+
+.video-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 15px;
+    padding: 10px;
+}
+
+.video-item {
+    border: 1px solid #ddd;
+    padding: 10px;
+    text-align: center;
+}
+
+    .video-item img {
+        width: 100%;
+        height: auto;
+    }
+
+.info {
+    margin-top: 5px;
+    color: #666;
+    font-size: 0.8em;
+}

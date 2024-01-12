@@ -1,15 +1,37 @@
 ﻿@page
-@model IndexModel
-@using VideoWebApp.Pages;
-
+@model VideoWebapp.Pages.WatchVideoModel
 @{
     ViewData["Title"] = "Home page";
 }
 
-<div class="text-center">
-    <a href="/watchvideo">Go to videos</a>
-    <br />
-    <a href="/livestream">live chat</a>
-    <br />
-    <a href="/Upload">Upload</a>
-</div>
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" type="text/css" href="~/css/style.css">
+</head>
+<body>
+    <div class="text-center">
+        <a href="/watchvideo">Go to videos</a>
+        <br />
+        <a href="/livestream">Live chat</a>
+        <br />
+        <a href="/Upload">Upload</a>
+    </div>
+
+    <input type="text" id="searchBox" placeholder="Search videos..." class="search-box">
+
+    <div class="video-grid">
+        @* Dynamically generate video items based on your model *@
+        @foreach (var video in Model.Videos)
+        {
+            <div class="video-item">
+                <img src="@video.ThumbnailUrl" alt="Video Thumbnail">
+                <div class="title">@video.VideoTitle</div>
+                <div class="info">100 views · 50 likes</div> <!-- Hardcoded for example -->
+            </div>
+        }
+    </div>
+
+    <script src="~/js/main.js"></script>
+</body>
+</html>
