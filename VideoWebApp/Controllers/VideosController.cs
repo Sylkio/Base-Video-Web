@@ -36,12 +36,13 @@ namespace VideoWebApp.Controllers
             return Ok(videos);
         }
         [HttpPost("Upload")]
+        [RequestSizeLimit(100_000_000)]
         public async Task<IActionResult> UploadVideo([FromForm] VideoUploadDto uploadDto)
         {
-            if (uploadDto.File.Length > 200 * 1024 * 1024)
-            {
-                return BadRequest("File size should not exceed 200 MB.");
-            }
+                if (uploadDto.File.Length > 200 * 1024 * 1024)
+                {
+                    return BadRequest("File size should not exceed 200 MB.");
+                }
 
                 // Check file type
                 string[] allowedTypes = { "video/mp4", "video/quicktime", "video/hevc", "video/webm" };
@@ -51,11 +52,11 @@ namespace VideoWebApp.Controllers
                 }
                         string containerName = "videos";
 
-            var tempFilePath = Path.GetTempFileName();
-            using (var stream = System.IO.File.Create(tempFilePath))
-                {
-                    await uploadDto.File.CopyToAsync(stream);
-                }
+                var tempFilePath = Path.GetTempFileName();
+                using (var stream = System.IO.File.Create(tempFilePath))
+                    {
+                        await uploadDto.File.CopyToAsync(stream);
+                    }
 
                 string convertedFileName = Path.GetFileNameWithoutExtension(uploadDto.File.FileName) + ".mp4";
                 string convertedFilePath = Path.Combine(Path.GetTempPath(), convertedFileName);
@@ -77,6 +78,27 @@ namespace VideoWebApp.Controllers
                     Description = uploadDto.VideoDescription,
                     VideoUrl = uploadResult
                 };
+            if (uploadDto.Thumbnail != null)
+            {
+                var thumbnailPath = Path.GetTempFileName(); // Create tmppath
+                using (var stream = System.IO.File.Create(thumbnailPath))
+                {
+                    await uploadDto.Thumbnail.CopyToAsync(stream);
+                }
+
+                string thumbnailContainer = "thumbnails";
+                var thumbnailUploadResult = await _azureService.UploadFileToBlobAsync(thumbnailContainer, thumbnailPath);
+                System.IO.File.Delete(thumbnailPath);
+
+                if (thumbnailUploadResult == null)
+                {
+                    return BadRequest("Could not upload the thumbnail");
+                }
+                video.ThumbnailUrl = thumbnailUploadResult;
+            }
+                
+
+               
                 _context.Videos.Add(video);
                 await _context.SaveChangesAsync();
 
@@ -105,20 +127,29 @@ namespace VideoWebApp.Controllers
             return Ok(new { Url = fileUrl });
         }
 
-        [HttpGet("Player/{fileName}")]
-        public IActionResult VideoPlayer(string containerName, string fileName)
+        [HttpGet("Player/{id}")]
+        public IActionResult VideoPlayer(int id)
         {
-            var fileUrl = _azureService.RetrieveFileFromStorage(containerName, fileName);
-            if (fileUrl == null)
+            var video = _context.Videos.FirstOrDefault(v => v.Id == id);
+            if (video == null)
             {
                 return NotFound();
             }
 
-            return View("WatchVideo", new VideoPlayerModel { VideoUrl = fileUrl });
+            var model = new VideoPlayerModel
+            {
+                VideoUrl = video.VideoUrl,
+                VideoTitle = video.Title,
+                VideoDescription = video.Description,
+                ThumbnailUrl = video.ThumbnailPath  // Ensure this property exists in your Video model
+            };
+
+            return View("WatchVideo", model);
         }
-        
-        
-        
+
+
+
+
     }
 
 }

@@ -10,8 +10,10 @@ namespace VideoWebApp.Models
     {
         [Key]
         public int Id { get; set; }
-       public string VideoUrl { get; set; } 
-       public string VideoTitle { get; set; }
+        public string VideoUrl { get; set; }
+        public string VideoTitle { get; set; }
         public string VideoDescription { get; set; }
+        public string ThumbnailUrl { get; set; }
+
     }
 }

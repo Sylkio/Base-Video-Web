@@ -13,10 +13,16 @@
         <input type="text" id="videoTitle" name="VideoTitle" required />
     </div>
     <div>
+        <label for="thumbnail">Select Thumbnail Image:</label>
+        <input type="file" id="thumbnail" name="Thumbnail" accept="image/png, image/jpeg" />
+    </div>
+
+    <div>
         <label for="videoDescription">Video Description:</label>
         <textarea id="videoDescription" name="VideoDescription" required></textarea>
     </div>
     <button type="submit">Upload Video</button>
+
 </form>
 
 <script>
