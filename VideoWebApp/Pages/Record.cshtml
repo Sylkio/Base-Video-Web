@@ -1,0 +1,141 @@
+﻿@page
+@model VideoWebapp.Pages.RecordModel
+@{
+}
+
+<a href="/Index">GO BACK</a>
+<br />
+
+<div>
+    <div style="padding: 20px;">
+        <video id="localVideo" autoplay muted style="transform:scaleX(-1); width:500px;"></video>
+        <br />
+        <button id="toggleButton">Toggle Video/Screen</button>
+        <button id="recordButton">Start Recording</button>
+    </div>
+
+    <br />
+
+    <div id="previewContainer" style="display: none; padding: 20px;">
+        <video id="previewVideo" controls style="width:500px;"></video>
+        <br />
+        <button id="downloadButton">Download Recording</button>
+    </div>
+</div>
+
+
+
+
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var localVideo = document.getElementById('localVideo');
+        var toggleButton = document.getElementById('toggleButton');
+        var recordButton = document.getElementById('recordButton');
+        var previewContainer = document.getElementById('previewContainer');
+        var previewVideo = document.getElementById('previewVideo');
+        var downloadButton = document.getElementById('downloadButton');
+
+        var currentStream = null;
+        var mediaRecorder = null;
+        var isRecording = false;
+        var currentMediaType = 'camera';
+
+        async function startMedia(type) {
+            try {
+                if (currentStream) {
+                    currentStream.getTracks().forEach(track => track.stop());
+                }
+
+                if (type === 'camera') {
+                    currentStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+                    currentMediaType = 'camera';
+                } else if (type === 'screen') {
+                    currentStream = await navigator.mediaDevices.getDisplayMedia({ video: true }).then(screenStream => {
+                        return new Promise((resolve, reject) => {
+                            navigator.mediaDevices.getUserMedia({ audio: true }).then(audioStream => {
+                                var combinedStream = new MediaStream([...screenStream.getTracks(), ...audioStream.getTracks()]);
+                                resolve(combinedStream);
+                            }).catch(reject);
+                        });
+                    });
+                    currentMediaType = 'screen';
+                }
+
+                localVideo.srcObject = currentStream;
+
+            } catch (error) {
+                console.error('Error accessing media devices:', error);
+            }
+        }
+
+        toggleButton.addEventListener('click', function () {
+            if (currentMediaType === 'camera') {
+                startMedia('screen');
+                console.log("Switching to screen");
+            } else {
+                startMedia('camera');
+                console.log("Switching to camera");
+            }
+        });
+
+        recordButton.addEventListener('click', function () {
+            if (!currentStream) {
+                console.log('No active stream to record.');
+                return;
+            }
+
+            if (!isRecording) {
+                startRecording();
+                recordButton.textContent = 'Stop Recording';
+            } else {
+                stopRecording();
+                recordButton.textContent = 'Start Recording';
+            }
+        });
+
+        function startRecording() {
+            var chunks = [];
+            mediaRecorder = new MediaRecorder(currentStream);
+
+            mediaRecorder.ondataavailable = function (event) {
+                if (event.data.size > 0) {
+                    chunks.push(event.data);
+                }
+            };
+
+            mediaRecorder.onstop = function () {
+                var blob = new Blob(chunks, { type: 'video/webm' });
+                var url = URL.createObjectURL(blob);
+
+                previewVideo.src = url;
+                previewContainer.style.display = 'block';
+            };
+
+            mediaRecorder.start();
+            isRecording = true;
+        }
+
+        function stopRecording() {
+            if (mediaRecorder && isRecording) {
+                mediaRecorder.stop();
+                isRecording = false;
+            }
+        }
+
+        downloadButton.addEventListener('click', function () {
+            if (previewVideo.src) {
+                var a = document.createElement('a');
+                document.body.appendChild(a);
+                a.style = 'display: none';
+                a.href = previewVideo.src;
+                a.download = 'recording_preview.webm';
+                a.click();
+                window.URL.revokeObjectURL(previewVideo.src);
+            }
+        });
+
+        startMedia('camera');
+    });
+</script>
