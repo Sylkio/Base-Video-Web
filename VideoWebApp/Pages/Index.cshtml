@@ -23,14 +23,15 @@
     <input type="text" id="searchBox" placeholder="Search videos..." class="search-box">
 
     <div class="video-grid">
-        @* Dynamically generate video items based on your model *@
         @foreach (var video in Model.Videos)
         {
-            <div class="video-item">
-                <img src="@video.ThumbnailUrl" alt="Video Thumbnail">
-                <div class="title">@video.VideoTitle</div>
-                <div class="info">100 views · 50 likes</div> <!-- Hardcoded for example -->
-            </div>
+            <a href="/WatchVideo/@video.Id">
+                <div class="video-item" style="width: 400px;">
+                    <img src="@video.ThumbnailUrl" alt="Video Thumbnail">
+                    <div class="title">@video.VideoTitle</div>
+                    <div class="info">100 views · 50 likes</div>
+                </div>
+            </a>        
         }
     </div>
 
