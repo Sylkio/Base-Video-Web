@@ -17,6 +17,7 @@ namespace VideoWebapp.DbHelper
         {
             return await _context.Videos.Select(v => new VideoPlayerModel
             {
+                Id = v.Id,
                 VideoUrl = v.VideoUrl,
                 VideoTitle = v.Title,
                 VideoDescription = v.Description,
