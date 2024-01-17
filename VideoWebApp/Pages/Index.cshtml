@@ -23,16 +23,24 @@
     <input type="text" id="searchBox" placeholder="Search videos..." class="search-box">
 
     <div class="video-grid">
-        @foreach (var video in Model.Videos)
+        @if (Model.Videos.Count < 1)
         {
-            <a href="/WatchVideo/@video.Id">
-                <div class="video-item" style="width: 400px;">
-                    <img src="@video.ThumbnailUrl" alt="Video Thumbnail">
-                    <div class="title">@video.VideoTitle</div>
-                    <div class="info">100 views · 50 likes</div>
-                </div>
-            </a>        
+         <h5>No videos uploaded</h5>   
         }
+        else
+        {
+            @foreach (var video in Model.Videos)
+            {
+                <a href="/WatchVideo/@video.Id">
+                    <div class="video-item" style="width: 400px;">
+                        <img src="@video.ThumbnailUrl" alt="Video Thumbnail">
+                        <div class="title">@video.VideoTitle</div>
+                        <div class="info">100 views · 50 likes</div>
+                    </div>
+                </a>
+            }
+        }
+        
     </div>
 
     <script src="~/js/main.js"></script>
