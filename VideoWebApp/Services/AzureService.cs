@@ -155,6 +155,7 @@ namespace VideoWebApp.Services
                 {
                     var videoModel = new VideoPlayerModel
                     {
+                        Id = matchVideo.Id,
                         VideoUrl = videoUrl,
                         VideoTitle = matchVideo.VideoTitle,
                         VideoDescription = matchVideo.VideoDescription,
