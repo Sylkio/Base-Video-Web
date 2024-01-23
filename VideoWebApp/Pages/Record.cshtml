@@ -41,13 +41,10 @@
         var mediaRecorder = null;
         var isRecording = false;
         var currentMediaType = 'camera';
+        var chunks = [];
 
         async function startMedia(type) {
             try {
-                if (currentStream) {
-                    currentStream.getTracks().forEach(track => track.stop());
-                }
-
                 if (type === 'camera') {
                     currentStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
                     currentMediaType = 'camera';
@@ -96,7 +93,6 @@
         });
 
         function startRecording() {
-            var chunks = [];
             mediaRecorder = new MediaRecorder(currentStream);
 
             mediaRecorder.ondataavailable = function (event) {
@@ -121,6 +117,7 @@
             if (mediaRecorder && isRecording) {
                 mediaRecorder.stop();
                 isRecording = false;
+                chunks = [];
             }
         }
 
