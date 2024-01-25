@@ -4,8 +4,8 @@
 }
 
 <head>
-    @*<script src="~/js/placeVideoStream.js"></script>*@
-    <script src="https://cdn.jsdelivr.net/gh/meething/StreamSwitcher@latest/js/ReplaceableMediaStream.js"></script>
+    <script src="~/js/replaceVideoStream.js"></script>
+    @*<script src="https://cdn.jsdelivr.net/gh/meething/StreamSwitcher@latest/js/ReplaceableMediaStream.js"></script>*@
 
 </head>
 
@@ -13,6 +13,8 @@
 <br />
 
 <div>
+    <h3 id="error" style="color: red;"></h3>
+
     <div style="padding: 20px;">
         <video id="localVideo" autoplay muted controls style="width:500px;"></video>
         <br />
@@ -36,126 +38,131 @@
 
 
 <script>
-        var localVideo = document.getElementById('localVideo');
+    if (!supported()) {
+        console.error("Browser does not support this functionality!")
+        document.getElementById("error").innerHTML = 'Browser not supported <a href="https://caniuse.com/#search=captureStream">Info</a>';
+    }
 
-        var toggleButton = document.getElementById('toggleButton');
-        var recordButton = document.getElementById('recordButton');
-        var previewContainer = document.getElementById('previewContainer');
-        var previewVideo = document.getElementById('previewVideo');
-        var downloadButton = document.getElementById('downloadButton');
+    var localVideo = document.getElementById('localVideo');
 
-        var currentStream = null;
-        var mediaRecorder;
-        var isRecording = false;
-        var currentMediaType = 'camera';
-        var chunks = [];
+    var toggleButton = document.getElementById('toggleButton');
+    var recordButton = document.getElementById('recordButton');
+    var previewContainer = document.getElementById('previewContainer');
+    var previewVideo = document.getElementById('previewVideo');
+    var downloadButton = document.getElementById('downloadButton');
 
-        var tempStream = new MediaStream();
-        setTimeout(function () {
-            localVideo.srcObject = tempStream.remoteStream;
-        }, 500);
+    var currentStream = null;
+    var mediaRecorder;
+    var isRecording = false;
+    var currentMediaType = 'camera';
+    var chunks = [];
 
-        async function startMedia(type) {
-            try {
-                if (type === 'camera') {
-                    /*currentStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });*/
+    var tempStream = new MediaStream();
+    setTimeout(function () {
+        localVideo.srcObject = tempStream.remoteStream;
+    }, 500);
 
-                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: true });
-                    stream.replaceVideoTrack(stream.getVideoTracks()[0])
-                    stream.replaceAudioTrack(stream.getAudioTracks()[0])
+    async function startMedia(type) {
+        try {
+            if (type === 'camera') {
+                /*currentStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });*/
 
-                    currentMediaType = 'camera';
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: true });
+                stream.replaceVideoTrack(stream.getVideoTracks()[0])
+                stream.replaceAudioTrack(stream.getAudioTracks()[0])
 
-                    //localVideo.srcObject = tempStream.remoteStream;
-
-                } else if (type === 'screen') {
-                    /*const stream = await navigator.mediaDevices.getDisplayMedia({ video: true }).then(screenStream => {
-                        return new Promise((resolve, reject) => {
-                            navigator.mediaDevices.getUserMedia({ audio: true }).then(audioStream => {
-                                var combinedStream = new MediaStream([...screenStream.getTracks(), ...audioStream.getTracks()]);
-                                resolve(combinedStream);
-                            }).catch(reject);
-                        });
-                    });*/
-
-                    const stream = await navigator.mediaDevices.getDisplayMedia({ audio: true, video: true });
-                    stream.replaceVideoTrack(stream.getVideoTracks()[0])
-
-                    currentMediaType = 'screen';
-                    //localVideo.srcObject = tempStream.remoteStream;
-                }
+                currentMediaType = 'camera';
 
                 //localVideo.srcObject = tempStream.remoteStream;
 
-            } catch (error) {
-                console.error('Error accessing media devices:', error);
+            } else if (type === 'screen') {
+                /*const stream = await navigator.mediaDevices.getDisplayMedia({ video: true }).then(screenStream => {
+                    return new Promise((resolve, reject) => {
+                        navigator.mediaDevices.getUserMedia({ audio: true }).then(audioStream => {
+                            var combinedStream = new MediaStream([...screenStream.getTracks(), ...audioStream.getTracks()]);
+                            resolve(combinedStream);
+                        }).catch(reject);
+                    });
+                });*/
+
+                const stream = await navigator.mediaDevices.getDisplayMedia({ audio: true, video: true });
+                stream.replaceVideoTrack(stream.getVideoTracks()[0])
+
+                currentMediaType = 'screen';
+                //localVideo.srcObject = tempStream.remoteStream;
             }
+
+            //localVideo.srcObject = tempStream.remoteStream;
+
+        } catch (error) {
+            console.error('Error accessing media devices:', error);
         }
+    }
 
 
 
-        toggleButton.addEventListener('click', function () {
-            if (currentMediaType === 'camera') {
-                startMedia('screen');
-                console.log("Switching to screen");
-            } else {
-                startMedia('camera');
-                console.log("Switching to camera");
-            }
-        });
-
-        function startRecording() {
-            mediaRecorder = new MediaRecorder(localVideo.captureStream());
-
-            mediaRecorder.ondataavailable = function (event) {
-                if (event.data.size > 0) {
-                    chunks.push(event.data);
-                }
-            };
-
-            mediaRecorder.onstop = function () {
-                var blob = new Blob(chunks, { type: 'video/webm' });
-                var url = URL.createObjectURL(blob);
-
-                previewVideo.src = url;
-                previewContainer.style.display = 'block';
-            };
-
-            mediaRecorder.start();
-            isRecording = true;
+    toggleButton.addEventListener('click', function () {
+        if (currentMediaType === 'camera') {
+            startMedia('screen');
+            console.log("Switching to screen");
+        } else {
+            startMedia('camera');
+            console.log("Switching to camera");
         }
+    });
 
-        function stopRecording() {
-            if (mediaRecorder && isRecording) {
-                mediaRecorder.stop();
-                isRecording = false;
-                chunks = [];
+    function startRecording() {
+        mediaRecorder = new MediaRecorder(localVideo.captureStream());
+
+        mediaRecorder.ondataavailable = function (event) {
+            if (event.data.size > 0) {
+                chunks.push(event.data);
             }
+        };
+
+        mediaRecorder.onstop = function () {
+            var blob = new Blob(chunks, { type: 'video/webm' });
+            var url = URL.createObjectURL(blob);
+
+            previewVideo.src = url;
+            previewContainer.style.display = 'block';
+        };
+
+        mediaRecorder.start();
+        isRecording = true;
+    }
+
+    function stopRecording() {
+        if (mediaRecorder && isRecording) {
+            mediaRecorder.stop();
+            isRecording = false;
+            chunks = [];
         }
+    }
 
-        recordButton.addEventListener('click', function () {
-            console.log("recording button clicked")
+    recordButton.addEventListener('click', function () {
+        console.log("recording button clicked")
 
-            if (!isRecording) {
-                startRecording();
-                recordButton.textContent = 'Stop Recording';
-            } else {
-                stopRecording();
-                recordButton.textContent = 'Start Recording';
-            }
-        });
+        if (!isRecording) {
+            startRecording();
+            recordButton.textContent = 'Stop Recording';
+        } else {
+            stopRecording();
+            recordButton.textContent = 'Start Recording';
+        }
+    });
 
-        downloadButton.addEventListener('click', function () {
-            if (previewVideo.src) {
-                var a = document.createElement('a');
-                document.body.appendChild(a);
-                a.style = 'display: none';
-                a.href = previewVideo.src;
-                a.download = 'recording_preview.webm';
-                a.click();
-                window.URL.revokeObjectURL(previewVideo.src);
-            }
-        });
+    downloadButton.addEventListener('click', function () {
+        if (previewVideo.src) {
+            var a = document.createElement('a');
+            document.body.appendChild(a);
+            a.style = 'display: none';
+            a.href = previewVideo.src;
+            a.download = 'recording_preview.webm';
+            a.click();
+            window.URL.revokeObjectURL(previewVideo.src);
+        }
+    });
 
-        startMedia('camera');
+    startMedia('camera');
 </script>
