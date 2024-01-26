@@ -113,36 +113,36 @@
             };
 
             mediaRecorder.onstop = async function () { 
-                var blob = new Blob(chunks, { type: 'video/webm' });
-                var url = URL.createObjectURL(blob);
+            var blob = new Blob(chunks, { type: 'video/webm' });
+            var url = URL.createObjectURL(blob);
 
-                previewVideo.src = url;
-                previewContainer.style.display = 'block';
-                
-                // Converting blob to file for upload
-                const file = new File([blob], 'recording.webm', { type: 'video/webm' });
+            previewVideo.src = url;
+            previewContainer.style.display = 'block';
+            
+           
+            const file = new File([blob], 'recording.webm', { type: 'video/webm' });
 
-                const formData = new FormData();
-                formData.append('File', file);
-                formData.append('videoTitle', 'User recording');
-                formData.append('Thumbnail', 'https://saallan2023.blob.core.windows.net/thumbnails/3dbece15-415e-4c4c-82ca-5fd66dc53e1c.png');
-                formData.append('videoDescription', 'User recording description');
+            const formData = new FormData();
+            formData.append('File', file);
+            formData.append('VideoTitle', 'User recording');
+            formData.append('VideoDescription', 'User recording description');
+                formData.append('FileType', 'recording'); 
 
-                try {
-                    const response = await fetch('/api/Videos/Upload', { 
-                        method: 'POST',
-                        body: formData
-                    });
-                    if (response.ok) {
-                        console.log('File uploaded successfully');
-                    } else {
-                        console.log('Possible recording File upload failed with status ' + response.status);
-                    }
-                } catch (error) {
-                    console.error('Error uploading file:', error);
+            try {
+                const response = await fetch('/api/Videos/Upload', { 
+                    method: 'POST',
+                    body: formData
+                });
+                if (response.ok) {
+                    console.log('File uploaded successfully');
+                } else {
+                    console.error('File upload failed with status ' + response.status);
                 }
-            };
-
+            } catch (error) {
+                console.error('Error uploading file:', error);
+            }
+        };
+            
             mediaRecorder.start();
             isRecording = true;
         }

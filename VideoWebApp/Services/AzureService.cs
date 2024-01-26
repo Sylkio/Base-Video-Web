@@ -195,17 +195,17 @@ namespace VideoWebApp.Services
                 }
             };
 
-            // Start FFmpeg process
+
             process.Start();
 
-            // Read output and error asynchronously
+           
             var readOutputTask = process.StandardOutput.ReadToEndAsync();
             var readErrorTask = process.StandardError.ReadToEndAsync();
 
-            // Wait for FFmpeg process to complete
+            
             await Task.WhenAny(Task.Run(() => process.WaitForExit()), readOutputTask, readErrorTask);
 
-            // Ensure both stdout and stderr have been read
+           
             string output = await readOutputTask;
             string error = await readErrorTask;
 
@@ -222,7 +222,7 @@ namespace VideoWebApp.Services
                 throw new InvalidOperationException("FFmpeg did not exit correctly. Exit code: " + process.ExitCode);
             }
 
-            // Log and return the output file path
+           
             Console.WriteLine("Reached line 193");
             return outputFilePath;
         }
