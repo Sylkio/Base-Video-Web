@@ -30,6 +30,9 @@
         <video id="previewVideo" controls style="width:500px;"></video>
         <br />
         <button id="downloadButton">Download Recording</button>
+        <br />
+        <h6>Upload this to azure?</h6>
+        <button id="azureUploadButton">Upload</button>
     </div>
 </div>
 
@@ -48,9 +51,13 @@
 
     var toggleButton = document.getElementById('toggleButton');
     var recordButton = document.getElementById('recordButton');
+
     var previewContainer = document.getElementById('previewContainer');
     var previewVideo = document.getElementById('previewVideo');
     var downloadButton = document.getElementById('downloadButton');
+
+    var azureUploadButton = document.getElementById('azureUploadButton')
+    const formData = new FormData();
 
     var mediaRecorder;
     var isRecording = false;
@@ -70,7 +77,6 @@
                 stream.replaceAudioTrack(stream.getAudioTracks()[0])
 
                 currentMediaType = 'camera';
-
 
             } else if (type === 'screen') {
                 const stream = await navigator.mediaDevices.getDisplayMedia({ audio: true, video: true });
@@ -110,6 +116,13 @@
 
             previewVideo.src = url;
             previewContainer.style.display = 'block';
+
+            const file = new File([blob], 'recording.webm', { type: 'video/webm' });
+
+            formData.append('File', file);
+            formData.append('VideoTitle', 'User recording');
+            formData.append('VideoDescription', 'User recording description');
+            formData.append('FileType', 'recording');
         };
 
         mediaRecorder.start();
@@ -133,6 +146,7 @@
         } else {
             stopRecording();
             recordButton.textContent = 'Start Recording';
+
         }
     });
 
@@ -147,5 +161,21 @@
             window.URL.revokeObjectURL(previewVideo.src);
         }
     });
+
+    azureUploadButton.addEventListener('click', function) () {
+        try {
+            const response = await fetch('/api/Videos/Upload', {
+                method: 'POST',
+                body: formData
+            });
+            if (response.ok) {
+                console.log('File uploaded successfully');
+            } else {
+                console.error('File upload failed with status ' + response.status);
+            }
+        } catch (error) {
+            console.error('Error uploading file:', error);
+        }
+    }
 
 </script>
