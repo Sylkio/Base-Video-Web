@@ -6,6 +6,7 @@
 <head>
     <script src="~/js/replaceVideoStream.js"></script>
     @*<script src="https://cdn.jsdelivr.net/gh/meething/StreamSwitcher@latest/js/ReplaceableMediaStream.js"></script>*@
+    @*https://github.com/meething/StreamSwitcher länk till streamswitcher jag baserade min kod på*@
 
 </head>
 
@@ -16,7 +17,7 @@
     <h3 id="error" style="color: red;"></h3>
 
     <div style="padding: 20px;">
-        <video id="localVideo" autoplay muted controls style="width:500px;"></video>
+        <video id="remoteVideo" autoplay muted controls style="width:500px;"></video>
         <br />
         <button id="toggleButton">Toggle Video/Screen</button>
         <button id="recordButton">Start Recording</button>*
@@ -43,7 +44,7 @@
         document.getElementById("error").innerHTML = 'Browser not supported <a href="https://caniuse.com/#search=captureStream">Info</a>';
     }
 
-    var localVideo = document.getElementById('localVideo');
+    var remoteVideo = document.getElementById('remoteVideo');
 
     var toggleButton = document.getElementById('toggleButton');
     var recordButton = document.getElementById('recordButton');
@@ -51,7 +52,6 @@
     var previewVideo = document.getElementById('previewVideo');
     var downloadButton = document.getElementById('downloadButton');
 
-    var currentStream = null;
     var mediaRecorder;
     var isRecording = false;
     var currentMediaType = 'camera';
@@ -59,123 +59,44 @@
 
     var tempStream = new MediaStream();
     setTimeout(function () {
-        localVideo.srcObject = tempStream.remoteStream;
+        remoteVideo.srcObject = tempStream.remoteStream;
     }, 500);
 
     async function startMedia(type) {
         try {
             if (type === 'camera') {
-                /*currentStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });*/
-
                 const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: true });
                 stream.replaceVideoTrack(stream.getVideoTracks()[0])
                 stream.replaceAudioTrack(stream.getAudioTracks()[0])
 
                 currentMediaType = 'camera';
 
-                //localVideo.srcObject = tempStream.remoteStream;
 
             } else if (type === 'screen') {
-                /*const stream = await navigator.mediaDevices.getDisplayMedia({ video: true }).then(screenStream => {
-                    return new Promise((resolve, reject) => {
-                        navigator.mediaDevices.getUserMedia({ audio: true }).then(audioStream => {
-                            var combinedStream = new MediaStream([...screenStream.getTracks(), ...audioStream.getTracks()]);
-                            resolve(combinedStream);
-                        }).catch(reject);
-                    });
-                });*/
-
                 const stream = await navigator.mediaDevices.getDisplayMedia({ audio: true, video: true });
                 stream.replaceVideoTrack(stream.getVideoTracks()[0])
 
                 currentMediaType = 'screen';
-                //localVideo.srcObject = tempStream.remoteStream;
             }
-
-            //localVideo.srcObject = tempStream.remoteStream;
-
         } catch (error) {
             console.error('Error accessing media devices:', error);
         }
     }
-            if (!isRecording) {
-                startRecording();
-                recordButton.textContent = 'Stop Recording';
-            } else {
-                stopRecording();
-                recordButton.textContent = 'Start Recording';
-            }
-        });
 
-            function stopRecording() {
-            if (mediaRecorder && isRecording) {
-            mediaRecorder.stop();
-           
-                }
-            }
+    startMedia('camera');
 
-            function startRecording() {
-            var chunks = [];
-            mediaRecorder = new MediaRecorder(currentStream);
-
-            mediaRecorder.ondataavailable = function (event) {
-                if (event.data.size > 0) {
-                    chunks.push(event.data);
-                }
-            };
-
-            mediaRecorder.onstop = async function () { 
-            var blob = new Blob(chunks, { type: 'video/webm' });
-            var url = URL.createObjectURL(blob);
-
-            previewVideo.src = url;
-            previewContainer.style.display = 'block';
-            
-           
-            const file = new File([blob], 'recording.webm', { type: 'video/webm' });
-
-            const formData = new FormData();
-            formData.append('File', file);
-            formData.append('VideoTitle', 'User recording');
-            formData.append('VideoDescription', 'User recording description');
-                formData.append('FileType', 'recording'); 
-
-            try {
-                const response = await fetch('/api/Videos/Upload', { 
-                    method: 'POST',
-                    body: formData
-                });
-                if (response.ok) {
-                    console.log('File uploaded successfully');
-                } else {
-                    console.error('File upload failed with status ' + response.status);
-                }
-            } catch (error) {
-                console.error('Error uploading file:', error);
-            }
-        };
-            
-            mediaRecorder.start();
-            isRecording = true;
+    toggleButton.addEventListener('click', function () {
+        if (currentMediaType === 'camera') {
+            startMedia('screen');
+            console.log("Switching to screen");
+        } else {
+            startMedia('camera');
+            console.log("Switching to camera");
         }
-
-        downloadButton.addEventListener('click', function () {
-            if (previewVideo.src) {
-                var a = document.createElement('a');
-                document.body.appendChild(a);
-                a.style = 'display: none';
-                a.href = previewVideo.src;
-                a.download = 'recording_preview.webm';
-                a.click();
-                window.URL.revokeObjectURL(previewVideo.src);
-            }
-        });
-
-        startMedia('camera');
     });
 
     function startRecording() {
-        mediaRecorder = new MediaRecorder(localVideo.captureStream());
+        mediaRecorder = new MediaRecorder(remoteVideo.captureStream());
 
         mediaRecorder.ondataavailable = function (event) {
             if (event.data.size > 0) {
@@ -227,5 +148,4 @@
         }
     });
 
-    startMedia('camera');
 </script>
