@@ -120,7 +120,6 @@
         if (mediaRecorder && isRecording) {
             mediaRecorder.stop();
             isRecording = false;
-            chunks = [];
         }
     }
 
@@ -128,6 +127,7 @@
         console.log("recording button clicked")
 
         if (!isRecording) {
+            chunks = [];
             startRecording();
             recordButton.textContent = 'Stop Recording';
         } else {
