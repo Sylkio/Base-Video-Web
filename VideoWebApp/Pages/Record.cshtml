@@ -162,20 +162,21 @@
         }
     });
 
-    azureUploadButton.addEventListener('click', function) () {
+    azureUploadButton.addEventListener('click', async function () {
         try {
             const response = await fetch('/api/Videos/Upload', {
                 method: 'POST',
                 body: formData
             });
             if (response.ok) {
-                console.log('File uploaded successfully');
+                alert('File uploaded successfully');
             } else {
+                alert('Failed to upload the video!')
                 console.error('File upload failed with status ' + response.status);
             }
         } catch (error) {
             console.error('Error uploading file:', error);
         }
-    }
+    });
 
 </script>
