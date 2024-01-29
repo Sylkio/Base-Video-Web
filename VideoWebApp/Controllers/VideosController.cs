@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -9,7 +10,7 @@ using VideoWebApp.Data;
 using VideoWebApp.Interface;
 using VideoWebApp.Models;
 using VideoWebApp.Models.DTOs;
-
+using System.Net.Http.Json;
 
 namespace VideoWebApp.Controllers
 {
@@ -17,9 +18,10 @@ namespace VideoWebApp.Controllers
     [Route("api/[controller]")]
     public class VideosController : Controller
     {
-         private readonly IAzureService _azureService; 
-         private readonly ApplicationDbContext _context;
-         private readonly ILogger<VideosController> _logger;
+        private readonly IAzureService _azureService;
+        private readonly ApplicationDbContext _context;
+        private readonly ILogger<VideosController> _logger;
+
         
         public VideosController(ApplicationDbContext context, IAzureService azureService, ILogger<VideosController> logger)
         {
@@ -44,51 +46,57 @@ namespace VideoWebApp.Controllers
                 return BadRequest("File size should not exceed 200 MB.");
             }
 
-            // Check file type
             string[] allowedTypes = { "video/mp4", "video/quicktime", "video/hevc", "video/webm" };
             if (!allowedTypes.Contains(uploadDto.File.ContentType))
             {
                 return BadRequest("Invalid file type. Allowed types are MP4, MOV, HEVC, WebM");
             }
 
-            var video = new Video
+            var tempFilePath = Path.GetTempFileName();
+            using (var stream = System.IO.File.Create(tempFilePath))
             {
-                Title = uploadDto.VideoTitle,
-                Description = uploadDto.VideoDescription
-            };
+                await uploadDto.File.CopyToAsync(stream);
+            }
 
-            // Assuming FileType is being passed correctly from the frontend
-            _logger.LogInformation($"Received FileType: {uploadDto.FileType}");
-
-            // Process file upload
-            string containerName = DetermineContainer(uploadDto.FileType);
-            var fileUploadResult = await ProcessFileUpload(uploadDto.File, uploadDto.FileType);
-            if (fileUploadResult == null)
+            var uploadResult = await _azureService.UploadFileToBlobAsync("input-videos", tempFilePath, uploadDto.File.FileName);
+            if (uploadResult == null)
             {
+                System.IO.File.Delete(tempFilePath);
                 return BadRequest("Could not upload the file.");
             }
 
-            if (uploadDto.FileType == "video")
+            System.IO.File.Delete(tempFilePath);
+
+            // Trigger Azure Function for video processing
+            string azureFunctionUrl = "https://func-appvideo.azurewebsites.net";
+            string processedVideoUrl = string.Empty; 
+            using (HttpClient httpClient = new HttpClient())
             {
-                video.VideoUrl = fileUploadResult;
+                 var response = await httpClient.PostAsJsonAsync(azureFunctionUrl, new { videoUrl = uploadResult });
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    _logger.LogError("Error calling Azure Function");
+                    return StatusCode(500, "Error processing the video");
+                }
+
+                processedVideoUrl = await response.Content.ReadAsStringAsync();
             }
-            else if (uploadDto.FileType == "thumbnail")
+          
+
+            // Update your database or application logic with the processed video URL
+            var video = new Video
             {
-                video.ThumbnailUrl = fileUploadResult;
-            }
-            else if (uploadDto.FileType == "recording")
-            {
-                video.RecordingUrl = fileUploadResult;
-            }
+                Title = uploadDto.VideoTitle,
+                Description = uploadDto.VideoDescription,
+                VideoUrl = processedVideoUrl
+            };
 
             _context.Videos.Add(video);
             await _context.SaveChangesAsync();
 
-            return Ok(new { VideoUrl = video.VideoUrl, ThumbnailUrl = video.ThumbnailUrl, RecordingUrl = video.RecordingUrl });
+            return Ok(new { processedVideoUrl });
         }
-
-
-
             private string DetermineContainer(string fileType)
         {
             return fileType switch
