@@ -15,23 +15,23 @@
         <h3 id="error" style="color: red;"></h3>
 
         <div style="padding: 1em;">
-            <video id="remoteVideo" autoplay muted controls style="width:100%;"></video>
+            <video id="remoteVideo" autoplay muted controls style="width:100%; max-width:600px;"></video>
             <br />
-            <button id="toggleButton">Toggle Video/Screen</button>
-            <button id="recordButton">Start Recording</button>*
+            <button class="generic-btn" id="toggleButton">Toggle Video/Screen</button>
+            <button class="generic-btn" id="recordButton">Start Recording</button>*
 
         </div>
 
         <br />
 
         <div id="previewContainer" style="display: none; padding: 20px;">
-            <video id="previewVideo" controls style="width:100%;"></video>
+            <video id="previewVideo" controls style="width:100%; max-width:600px;"></video>
             <br />
-            <button id="downloadButton">Download Recording</button>
+            <button class="generic-btn" id="downloadButton">Download Recording</button>
             <br />
             <br />
             <h6>Upload this to azure?</h6>
-            <button id="azureUploadButton">Upload</button>
+            <button class="generic-btn" id="azureUploadButton">Upload</button>
         </div>
     </div>
 </body>
