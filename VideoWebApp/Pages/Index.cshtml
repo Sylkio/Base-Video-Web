@@ -1,7 +1,7 @@
 ﻿@page
 @model VideoWebapp.Pages.WatchVideoModel
 @{
-    ViewData["Title"] = "YVideo web app Home Page";
+    ViewData["Title"] = "Home";
 }
 
 <!DOCTYPE html>
@@ -9,46 +9,51 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="stylesheet" href="~/css/youtube-clone.css">
     <title>VideoWeb App</title>
 </head>
 <body>
     <header class="header">
-        <div class="logo">
+        @*<div class="logo">
             <i class="material-icons">menu</i>
-            <img src="logo" alt="Logo">
-        </div>
+        </div>*@
         <div class="search">
             <input type="text" placeholder="Search">
             <button><i class="material-icons">search</i></button>
         </div>
-        <div class="user-options">
+        @*<div class="user-options">
             <i class="material-icons">videocam</i>
             <i class="material-icons">apps</i>
             <i class="material-icons">notifications</i>
             <i class="material-icons">account_circle</i>
-        </div>
+        </div>*@
     </header>
     <main class="main-content">
-        <aside class="side-bar">
+        @*<aside class="side-bar">
             <a class="nav-link active" asp-page="/Index"><i class="material-icons">home</i> Home</a>
             <a class="nav-link" asp-page="/Record"><i class="material-icons">whatshot</i> Recording</a>
             <a class="nav-link" asp-page="/Upload"><i class="material-icons">subscriptions</i> Videos Upload</a>
-        </aside>
+        </aside>*@
         <div class="content">
-            <div class="video-grid">
-                @foreach (var video in Model.Videos)
-                {
-                    <div class="video-item">
-                        <img src="@video.ThumbnailUrl" alt="Thumbnail">
-                        <div class="video-info">
-                            <div class="title">@video.VideoTitle</div>
-                            <div class="info">100 views · 50 likes</div>
+            @if (Model.Videos.Count < 1)
+            {
+                <h3>There are no videos uploaded, head to the video upload and make some!</h3>
+            }
+            else
+            {
+                <div class="video-grid">
+                    @foreach (var video in Model.Videos)
+                    {
+                        <div class="video-item">
+                            <img src="@video.ThumbnailUrl" alt="Thumbnail">
+                            <div class="video-info">
+                                <div class="title">@video.VideoTitle</div>
+                                <div class="info">100 views · 50 likes</div>
+                            </div>
                         </div>
-                    </div>
-                }
-            </div>
+                    }
+                </div>
+            }
         </div>
     </main>
     <script src="~/js/youtube-clone.js"></script>

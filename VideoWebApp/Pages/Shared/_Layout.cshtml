@@ -7,6 +7,10 @@
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/VideoWebapp.styles.css" asp-append-version="true" />
+
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="~/css/youtube-clone.css">
+
 </head>
 <body>
     <header>
@@ -20,10 +24,13 @@
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-page="/Index">Home</a>
+                            <a class="nav-link active" asp-page="/Index"><i class="material-icons">home</i> Home</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-page="/Privacy">Privacy</a>
+                            <a class="nav-link" asp-page="/Record"><i class="material-icons">whatshot</i> Recording</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-page="/Upload"><i class="material-icons">subscriptions</i> Videos Upload</a>
                         </li>
                     </ul>
                 </div>

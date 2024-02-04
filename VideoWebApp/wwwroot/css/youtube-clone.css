@@ -10,7 +10,7 @@ body {
     background-color: #fff;
     padding: 10px;
     display: flex;
-    justify-content: space-between;
+    justify-content: space-around;
     align-items: center;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }

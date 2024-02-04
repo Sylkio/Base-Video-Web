@@ -1,7 +1,7 @@
 ﻿@page
 @model VideoWebapp.Pages.UploadModel
 @{
-    Layout = null;
+    Layout = "_Layout";
 }
 
 <!DOCTYPE html>
@@ -14,7 +14,6 @@
 </head>
 <body>
     <div class="upload-container">
-        <a href="/" class="go-back">Go back</a>
         <h2>Upload Video</h2>
         <form id="uploadForm" method="post" action="/api/Videos/Upload" enctype="multipart/form-data">
             <div class="form-group">
