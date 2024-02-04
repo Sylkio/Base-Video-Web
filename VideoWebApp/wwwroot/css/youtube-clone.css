@@ -1,0 +1,80 @@
+/* Basic styling for YouTube clone */
+body {
+    font-family: 'Roboto', sans-serif;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.header {
+    background-color: #fff;
+    padding: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.main-content {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.side-bar {
+    flex: 0 0 240px; /* Adjust width as needed */
+    background-color: #f9f9f9;
+    padding: 20px;
+}
+
+.content {
+    flex: 1; /* Takes the remaining space */
+    padding: 15px;
+    overflow-y: auto;
+}
+
+.video-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    grid-gap: 15px;
+}
+
+.video-item {
+    background: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.video-item img {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+.video-info {
+    padding: 10px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1200px) {
+    .video-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 900px) {
+    .video-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .side-bar {
+        display: none;
+    }
+    .content {
+        flex: 1;
+    }
+    .video-grid {
+        grid-template-columns: 1fr;
+    }
+}
