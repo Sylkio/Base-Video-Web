@@ -33,8 +33,7 @@ builder.Services.AddCors(option => {
 
 // Configure Entity Framework Core with SQL Server
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"),
-    options => options.EnableRetryOnFailure()));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // Configure Azure Blob Storage
 var blobStorageConnectionString = builder.Configuration.GetConnectionString("BlobConnectionString");
