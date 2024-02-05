@@ -13,7 +13,7 @@ namespace VideoWebapp.Pages
 
         public VideoPlayerModel SelectedVideo;
 
-        private readonly string _storageContainerName = "videos";
+        private readonly string _storageContainerName = "input-videos";
 
         private readonly IAzureService _azureService;
         public List<VideoPlayerModel> Videos { get; private set; }
