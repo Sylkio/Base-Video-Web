@@ -38,7 +38,7 @@ namespace VideoWebApp.Controllers
             var videos = await _context.Videos.ToListAsync();
             return Ok(videos);
         }
-        [HttpPost("Upload")] // Corrected syntax error here
+        [HttpPost("Upload")] 
         [RequestSizeLimit(100_000_000)]
         public async Task<IActionResult> UploadVideo([FromForm] VideoUploadDto uploadDto)
         {
