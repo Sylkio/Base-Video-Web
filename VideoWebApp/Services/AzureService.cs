@@ -12,6 +12,7 @@ using Azure.Storage.Blobs.Models;
 using System.Diagnostics;
 using Microsoft.Extensions.Logging;
 using VideoWebapp.DbHelper;
+using System.Net;
 
 namespace VideoWebApp.Services
 {
@@ -137,22 +138,35 @@ namespace VideoWebApp.Services
                 return null;
             }
         }
-      
+
         public async Task<IEnumerable<VideoPlayerModel>> ListVideoUrlsAsync(string containerName)
         {
             var blobServiceClient = new BlobServiceClient(_storageConnectionString);
-            var blobContainerClient = blobServiceClient.GetBlobContainerClient(containerName);
+            var blobContainerClient = blobServiceClient.GetBlobContainerClient("processed-videos");
             var videoMetadata = await _dbHelper.GetVideoMetadataAsync();
             var videoList = new List<VideoPlayerModel>();
 
             await foreach (var blobItem in blobContainerClient.GetBlobsAsync())
             {
                 var blobClient = blobContainerClient.GetBlobClient(blobItem.Name);
-                var videoUrl = blobClient.Uri.AbsoluteUri;
+                var videoUrl = WebUtility.UrlDecode(blobClient.Uri.AbsoluteUri);
 
+                
+                _logger.LogInformation($"Blob URL: {videoUrl}");
+
+               
                 var matchVideo = videoMetadata.FirstOrDefault(v => v.VideoUrl == videoUrl);
+                
+                _logger.LogInformation("Listing all video metadata URLs:");
+                foreach (var video in videoMetadata)
+                {
+                    _logger.LogInformation($"Metadata URL: {video.VideoUrl}");
+                }
                 if (matchVideo != null)
                 {
+                   
+                    _logger.LogInformation($"Match found in video metadata: Title={matchVideo.VideoTitle}, URL={matchVideo.VideoUrl}");
+
                     var videoModel = new VideoPlayerModel
                     {
                         Id = matchVideo.Id,
@@ -165,17 +179,21 @@ namespace VideoWebApp.Services
                 }
                 else
                 {
+                    
+                    _logger.LogWarning($"No match found in video metadata for URL: {videoUrl}");
+
                     var videoModel = new VideoPlayerModel
                     {
                         VideoUrl = videoUrl,
                         VideoTitle = "UNKNOWN TITLE",
                         VideoDescription = "UNKNOWN DESCRIPTION",
-                        ThumbnailUrl = "https://saallan2023.blob.core.windows.net/thumbnails/afb0ed01-b8ad-48fb-b68b-be6d1779fa62.png"
+                        ThumbnailUrl = "default_thumbnail_url_here" // Replace with your default thumbnail URL
                     };
                     videoList.Add(videoModel);
                 }
             }
 
+            // Return the list of video models
             return videoList;
         }
 
@@ -194,11 +212,7 @@ namespace VideoWebApp.Services
                     CreateNoWindow = true
                 }
             };
-
-
             process.Start();
-
-           
             var readOutputTask = process.StandardOutput.ReadToEndAsync();
             var readErrorTask = process.StandardError.ReadToEndAsync();
 
