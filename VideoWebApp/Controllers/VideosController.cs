@@ -1,4 +1,4 @@
-using System;
+    using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
@@ -11,6 +11,7 @@ using VideoWebApp.Interface;
 using VideoWebApp.Models;
 using VideoWebApp.Models.DTOs;
 using System.Net.Http.Json;
+using Microsoft.VisualBasic.FileIO;
 
 namespace VideoWebApp.Controllers
 {
@@ -37,7 +38,7 @@ namespace VideoWebApp.Controllers
             var videos = await _context.Videos.ToListAsync();
             return Ok(videos);
         }
-        [HttpPost("Upload")]
+        [HttpPost("Upload")] 
         [RequestSizeLimit(100_000_000)]
         public async Task<IActionResult> UploadVideo([FromForm] VideoUploadDto uploadDto)
         {
@@ -66,13 +67,44 @@ namespace VideoWebApp.Controllers
             }
 
             System.IO.File.Delete(tempFilePath);
+            string thumbnailUploadResult = null;
+            if (uploadDto.Thumbnail != null)
+            {
+                var thumbnailTempFilePath = Path.GetTempFileName();
+                using (var stream = System.IO.File.Create(thumbnailTempFilePath))
+                {
+                    await uploadDto.Thumbnail.CopyToAsync(stream);
+                }
 
-            // Trigger Azure Function for video processing
-            string azureFunctionUrl = "https://func-appvideo.azurewebsites.net";
+               
+                thumbnailUploadResult = await _azureService.UploadFileToBlobAsync("thumbnails", thumbnailTempFilePath, uploadDto.Thumbnail.FileName);
+                System.IO.File.Delete(thumbnailTempFilePath);
+
+                if (thumbnailUploadResult == null)
+                {
+                    return BadRequest("Could not upload the thumbnail.");
+                }
+            }
+            else
+            {
+                return BadRequest("Thumbnail file is missing.");
+            }
+
+
+
+            string fileType = uploadDto.FileType ?? "video";
+            string azureFunctionUrl = "http://81.227.176.211:1214/api/Function1"; 
             string processedVideoUrl = string.Empty; 
             using (HttpClient httpClient = new HttpClient())
             {
-                 var response = await httpClient.PostAsJsonAsync(azureFunctionUrl, new { videoUrl = uploadResult });
+                var response = await httpClient.PostAsJsonAsync(
+                azureFunctionUrl,
+                new
+                {
+                    videoUrl = uploadResult,
+                    name = Path.GetFileNameWithoutExtension(uploadDto.File.FileName),
+                    fileType = fileType
+                });
 
                 if (!response.IsSuccessStatusCode)
                 {
@@ -80,30 +112,31 @@ namespace VideoWebApp.Controllers
                     return StatusCode(500, "Error processing the video");
                 }
 
-                processedVideoUrl = await response.Content.ReadAsStringAsync();
+                var functionResponse = await response.Content.ReadFromJsonAsync<AzureFunctionResponse>();
+                processedVideoUrl = functionResponse?.Url;
             }
-          
-
             
             var video = new Video
             {
                 Title = uploadDto.VideoTitle,
                 Description = uploadDto.VideoDescription,
-                VideoUrl = processedVideoUrl
+                VideoUrl = processedVideoUrl,
+                ThumbnailUrl = thumbnailUploadResult
             };
 
             _context.Videos.Add(video);
             await _context.SaveChangesAsync();
 
-            return Ok(new { processedVideoUrl });
+            return Ok(new { processedVideoUrl, thumbnailUrl = thumbnailUploadResult });
+
         }
-            private string DetermineContainer(string fileType)
+        private string DetermineContainer(string fileType)
         {
             return fileType switch
             {
                 "video" => "videos",
                 "thumbnail" => "thumbnails",
-                "recording" => "recordings",
+                "recording" => "recordings", 
                 _ => throw new ArgumentException("Invalid file type", nameof(fileType))
             };
         }
@@ -120,7 +153,7 @@ namespace VideoWebApp.Controllers
             catch (ArgumentException ex)
             {
                 _logger.LogError(ex, "Invalid file type encountered in ProcessFileUpload.");
-                throw; // or handle this scenario more gracefully if appropriate
+                throw; 
             }
 
             var tempFilePath = Path.GetTempFileName();
@@ -135,7 +168,6 @@ namespace VideoWebApp.Controllers
 
             var uploadResult = await _azureService.UploadFileToBlobAsync(containerName, convertedFilePath, convertedFileName);
 
-            // Clean up the temporary files
             System.IO.File.Delete(tempFilePath);
             System.IO.File.Delete(convertedFilePath);
 
@@ -146,22 +178,18 @@ namespace VideoWebApp.Controllers
         [HttpGet("Retrieve/{fileName}")]
         public IActionResult RetrieveVideo(string containerName, string fileName)
         {
-            // Step 1: Validate input parameters
             if (string.IsNullOrWhiteSpace(containerName) || string.IsNullOrWhiteSpace(fileName))
             {
                 return BadRequest("Container name and file name must be provided.");
             }
 
-            // Step 2: Call _azureService.RetrieveFileFromStorage
             var fileUrl = _azureService.RetrieveFileFromStorage(containerName, fileName);
 
-            // Step 3: Check if the returned URI is null
             if (fileUrl == null)
             {
                 return NotFound($"File '{fileName}' not found in container '{containerName}'.");
             }
 
-            // Step 4: Return the file URI
             return Ok(new { Url = fileUrl });
         }
 
@@ -188,6 +216,10 @@ namespace VideoWebApp.Controllers
             };
 
             return View("WatchVideo", model);
+        }
+        public class AzureFunctionResponse
+        {
+            public string Url { get; set; }
         }
 
 
