@@ -11,6 +11,16 @@
 
 </head>
 <body>
+    <script>
+        function isIos() {
+            return /iPhone|iPad|iPod|Macintosh|Mac OS X/i.test(navigator.userAgent);
+        }
+
+        if (isIos()) {
+            window.location.href = '/RecordIOS'
+        }
+    </script>
+
     <div>
         <h3 id="error" style="color: red;"></h3>
 

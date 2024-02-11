@@ -1,0 +1,93 @@
+﻿@page
+@model VideoWebapp.Pages.iosrecordtestModel
+@{
+}
+<head>
+    <style>
+        #container {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        #cameraPreview, #recordedVideo {
+            display: block;
+            padding: 1em;
+            margin: auto;
+            max-width: 100%;
+            max-height: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div style="justify-content: center; align-content: center;">
+        <div>
+            <button id="startButton">Start Recording</button>
+            <button id="stopButton" style="display: none;">Stop Recording</button>
+            <video id="cameraPreview" autoplay muted playsinline style="max-width: 80%; max-height: auto; justify-content:center; align-content:center;"></video>
+            <br />
+        </div>
+        <div>
+            <video id="recordedVideo" controls style="display: none; max-width: 80%; max-height: auto;"></video>
+        </div>
+    </div>
+
+    <script>
+        let stream;
+        let mediaRecorder;
+        let chunks = [];
+
+        const startButton = document.getElementById('startButton');
+        const stopButton = document.getElementById('stopButton');
+        const cameraPreview = document.getElementById('cameraPreview');
+        const recordedVideo = document.getElementById('recordedVideo');
+
+        startButton.addEventListener('click', startRecording);
+        stopButton.addEventListener('click', stopRecording);
+
+        async function startCameraPreview() {
+            try {
+                stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+                cameraPreview.srcObject = stream;
+            } catch (error) {
+                console.error('Error accessing media devices:', error);
+            }
+        }
+
+        async function startRecording() {
+            chunks = [];
+            await startCameraPreview();
+
+            recordedVideo.style.display = 'none';
+            startButton.style.display = 'none';
+            stopButton.style.display = 'inline-block';
+
+            mediaRecorder = new MediaRecorder(stream);
+
+            mediaRecorder.ondataavailable = function (event) {
+                if (event.data && event.data.size > 0) {
+                    chunks.push(event.data);
+                }
+            };
+
+            mediaRecorder.onstop = function () {
+                const blob = new Blob(chunks, { type: 'video/mp4' });
+                recordedVideo.src = window.URL.createObjectURL(blob);
+                recordedVideo.style.display = 'block';
+                startButton.style.display = 'inline-block';
+                stopButton.style.display = 'none';
+            };
+
+            mediaRecorder.start();
+        }
+
+        function stopRecording() {
+            mediaRecorder.stop();
+        }
+
+        // Start camera preview when the page loads
+        startCameraPreview();
+    </script>
+</body>
