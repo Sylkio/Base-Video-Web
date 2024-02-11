@@ -93,7 +93,7 @@ namespace VideoWebApp.Controllers
 
 
             string fileType = uploadDto.FileType ?? "video";
-            string azureFunctionUrl = "http://localhost:7234/api/Function1"; 
+            string azureFunctionUrl = "http://81.227.176.211:1214/api/Function1"; 
             string processedVideoUrl = string.Empty; 
             using (HttpClient httpClient = new HttpClient())
             {
