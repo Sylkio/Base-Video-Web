@@ -290,7 +290,7 @@
     var downloadButton = document.getElementById('downloadButton');
 
     var azureUploadButton = document.getElementById('azureUploadButton')
-    const formData = new FormData();
+    const formData;
 
     var mediaRecorder;
     var isRecording = false;
@@ -358,6 +358,7 @@
 
             const file = new File([blob], 'recording.webm', { type: 'video/webm' });
 
+            formData = new FormData();
             formData.append('File', file);
             formData.append('VideoTitle', 'User recording');
             formData.append('VideoDescription', 'User recording description');
