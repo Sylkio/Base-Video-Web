@@ -34,14 +34,18 @@ div[video-grid] > video{
 
 .generic-btn {
     padding: 10px;
-    background: #007bff;
+    background: #0d6ed8;
     color: white;
     border: none;
     border-radius: 4px;
     cursor: pointer;
-    transition: background 0.3s;
+    transition: background-color 0.2s, color 0.2s, opacity 0.2s;
 }
 
-.upload-btn:hover {
-    background: #0056b3;
+.generic-btn:hover {
+    background: #137aeb;
+}
+
+.generic-btn:active {
+    opacity: 0.6;
 }
