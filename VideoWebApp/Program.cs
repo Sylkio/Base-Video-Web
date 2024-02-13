@@ -8,6 +8,11 @@ using VideoWebapp.Hubs;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.WebHost.ConfigureKestrel(serverOptions =>
+{
+    serverOptions.Limits.MaxRequestBodySize = 209715;
+});
+
 // Add services to the container.
 builder.Services.AddControllers();
 builder.Services.AddSignalR();
