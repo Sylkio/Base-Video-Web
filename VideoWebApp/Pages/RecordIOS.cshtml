@@ -36,7 +36,18 @@
             <button class="generic-btn" id="downloadButton">Download Recording</button>
             <br />
             <br />
-            <h6>Upload this to azure?</h6>
+            <div class="form-group">
+                <label for="videoTitle">Video Title:</label>
+                <input type="text" id="videoTitle" name="VideoTitle" required />
+            </div>
+            <div class="form-group">
+                <label for="thumbnail">Select Thumbnail Image:</label>
+                <input type="file" id="thumbnail" name="Thumbnail" accept="image/png, image/jpeg" />
+            </div>
+            <div class="form-group">
+                <label for="videoDescription">Video Description:</label>
+                <textarea id="videoDescription" name="VideoDescription" required></textarea>
+            </div>
             <button class="generic-btn" id="azureUploadButton">Upload</button>
         </div>
     </div>
@@ -51,6 +62,11 @@
         const stopButton = document.getElementById('stopButton');
         const cameraPreview = document.getElementById('cameraPreview');
         const previewVideo = document.getElementById('previewVideo');
+
+        var videoTitles = document.getElementById('videoTitle').value;
+        var videoDescription = document.getElementById('videoDescription').value;
+        var thumbnail = document.getElementById('thumbnail');
+        var azureUploadButton = document.getElementById('azureUploadButton')
 
         startButton.addEventListener('click', startRecording);
         stopButton.addEventListener('click', stopRecording);
@@ -125,9 +141,9 @@
             }
         });
 
-        azureUploadButton.addEventListener('click', async function () {
+        async function azureUploadAPI() {
             try {
-                let response = await fetch('/api/Videos/Upload', {
+                const response = await fetch('/api/Videos/Upload', {
                     method: 'POST',
                     body: formData
                 });
@@ -140,6 +156,17 @@
             } catch (error) {
                 console.error('Error uploading file:', error);
             }
+        };
+
+        azureUploadButton.addEventListener('click', async function () {
+            formData = new FormData();
+            formData.append('File', file);
+            formData.append('VideoTitle', videoTitle);
+            formData.append('VideoDescription', videoDescription);
+            formData.append('FileType', 'recording');
+            formData.append('Thumbnail', thumbnail);
+
+            azureUploadAPI();
         });
     </script>
 </body>

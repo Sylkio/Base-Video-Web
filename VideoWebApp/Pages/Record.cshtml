@@ -8,6 +8,7 @@
     @*<script src="~/js/replaceVideoStream.js"></script>*@
     @*<script src="https://cdn.jsdelivr.net/gh/meething/StreamSwitcher@latest/js/ReplaceableMediaStream.js"></script>*@
     @*https://github.com/meething/StreamSwitcher länk till streamswitcher jag baserade min kod på*@
+    <link rel="stylesheet" href="~/css/upload-style.css">
 
 </head>
 <body>
@@ -40,8 +41,25 @@
             <button class="generic-btn" id="downloadButton">Download Recording</button>
             <br />
             <br />
-            <h6>Upload this to azure?</h6>
-            <button class="generic-btn" id="azureUploadButton">Upload</button>
+
+            <form method="post" action="/api/Videos/Upload" enctype="multipart/form-data" id="uploadForm">
+                <div class="form-group">
+                    <label for="videoTitle">Video Title:</label>
+                    <input type="text" id="videoTitle" name="VideoTitle" required />
+                </div>
+                <div class="form-group">
+                    <label for="thumbnail">Select Thumbnail Image:</label>
+                    <input type="file" id="thumbnail" name="Thumbnail" accept="image/png, image/jpeg" />
+                </div>
+                <div class="form-group">
+                    <label for="videoDescription">Video Description:</label>
+                    <textarea id="videoDescription" name="VideoDescription" required></textarea>
+                    <input type="hidden" id="recordedData" name="RecordedData" />
+
+                </div>
+                <button class="generic-btn" type="submit" id="azureUploadButton">Upload</button>
+            </form>
+           
         </div>
     </div>
 </body>
@@ -274,6 +292,9 @@
             this.audioSender.replaceTrack(track);
         }
     }
+
+</script>
+<script>
     // --------------------------------------- site js -------------------------------
     if (!supported()) {
         console.error("Browser does not support this functionality!")
@@ -289,13 +310,21 @@
     var previewVideo = document.getElementById('previewVideo');
     var downloadButton = document.getElementById('downloadButton');
 
+    var uploadForm = document.getElementById('uploadForm');
+    var recordedDataInput = document.getElementById('recordedData');
+
+    /*
+    var videoTitles = document.getElementById('videoTitle').value;
+    var videoDescription = document.getElementById('videoDescription').value;
+    var thumbnail = document.getElementById('thumbnail');
     var azureUploadButton = document.getElementById('azureUploadButton')
     let formData;
-
+    */
     var mediaRecorder;
     var isRecording = false;
     var currentMediaType = 'camera';
     var chunks = [];
+    var file;
 
     var tempStream = new MediaStream();
     setTimeout(function () {
@@ -356,13 +385,9 @@
             previewVideo.src = url;
             previewContainer.style.display = 'block';
 
-            const file = new File([blob], 'recording.webm', { type: 'video/webm' });
+            file = new File([blob], 'recording.webm', { type: 'video/webm' });
 
-            formData = new FormData();
-            formData.append('File', file);
-            formData.append('VideoTitle', 'User recording');
-            formData.append('VideoDescription', 'User recording description');
-            formData.append('FileType', 'recording');
+            
         };
 
         mediaRecorder.start();
@@ -402,7 +427,19 @@
         }
     });
 
-    azureUploadButton.addEventListener('click', async function () {
+    uploadForm.addEventListener('submit', function (event) {
+        event.preventDefault();
+
+        var recordedBlob = getRecordedBlob();
+
+        var recordedFile = new File([recordedBlob], 'recorded_video.webm', { type: 'video/webm' });
+
+        recordedDataInput.value = recordedFile;
+
+        uploadForm.submit();
+    });
+
+    /*async function azureUploadAPI() {
         try {
             const response = await fetch('/api/Videos/Upload', {
                 method: 'POST',
@@ -417,5 +454,16 @@
         } catch (error) {
             console.error('Error uploading file:', error);
         }
-    });
+    };
+
+    azureUploadButton.addEventListener('click', async function () {
+        formData = new FormData();
+        formData.append('File', file);
+        formData.append('VideoTitle', videoTitle);
+        formData.append('VideoDescription', videoDescription);
+        formData.append('FileType', 'recording');
+        formData.append('Thumbnail', thumbnail);
+
+        azureUploadAPI();
+    });*/
 </script>
