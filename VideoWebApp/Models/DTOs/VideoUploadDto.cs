@@ -13,7 +13,7 @@ namespace VideoWebApp.Models.DTOs
         [Required(ErrorMessage = "File is required")]
         public IFormFile File { get; set; }
         public string VideoTitle  { get; set; }
-        public string VideoDescription { get; set; }
+        public string? VideoDescription { get; set; }
         public IFormFile? Thumbnail { get; set; }
         public IFormFile? Recording { get; set; } 
         public string? FileType { get; set; } 

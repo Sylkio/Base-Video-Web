@@ -8,6 +8,7 @@
     @*<script src="~/js/replaceVideoStream.js"></script>*@
     @*<script src="https://cdn.jsdelivr.net/gh/meething/StreamSwitcher@latest/js/ReplaceableMediaStream.js"></script>*@
     @*https://github.com/meething/StreamSwitcher länk till streamswitcher jag baserade min kod på*@
+    <link rel="stylesheet" href="~/css/upload-style.css">
 
 </head>
 <body>
@@ -40,8 +41,22 @@
             <button class="generic-btn" id="downloadButton">Download Recording</button>
             <br />
             <br />
-            <h6>Upload this to azure?</h6>
-            <button class="generic-btn" id="azureUploadButton">Upload</button>
+            <form id="uploadForm" method="post" action="/api/Videos/Upload" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label for="videoTitle">Video Title:</label>
+                    <input type="text" id="videoTitle" name="VideoTitle" required />
+                </div>
+                <div class="form-group">
+                    <label for="videoDescription">Video Description:</label>
+                    <textarea id="videoDescription" name="VideoDescription" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="thumbnail">Select Thumbnail Image:</label>
+                    <input type="file" id="thumbnail" name="Thumbnail" accept="image/png, image/jpeg" />
+                </div>
+                <button type="button" class="generic-btn" id="azureUploadButton">Upload</button>
+                @*<input type="submit" value="Submit" class="generic-btn"/>*@
+            </form>
         </div>
     </div>
 </body>
@@ -274,6 +289,9 @@
             this.audioSender.replaceTrack(track);
         }
     }
+
+</script>
+<script>
     // --------------------------------------- site js -------------------------------
     if (!supported()) {
         console.error("Browser does not support this functionality!")
@@ -289,13 +307,13 @@
     var previewVideo = document.getElementById('previewVideo');
     var downloadButton = document.getElementById('downloadButton');
 
-    var azureUploadButton = document.getElementById('azureUploadButton')
-    let formData;
+    //let formData;
 
     var mediaRecorder;
     var isRecording = false;
     var currentMediaType = 'camera';
     var chunks = [];
+    var file;
 
     var tempStream = new MediaStream();
     setTimeout(function () {
@@ -356,13 +374,7 @@
             previewVideo.src = url;
             previewContainer.style.display = 'block';
 
-            const file = new File([blob], 'recording.webm', { type: 'video/webm' });
-
-            formData = new FormData();
-            formData.append('File', file);
-            formData.append('VideoTitle', 'User recording');
-            formData.append('VideoDescription', 'User recording description');
-            formData.append('FileType', 'recording');
+            file = new File([blob], 'recording.webm', { type: 'video/webm' });
         };
 
         mediaRecorder.start();
@@ -402,7 +414,72 @@
         }
     });
 
+    /*
+    var videoTitleInput = document.getElementById('videoTitle');
+    var videoDescriptionInput = document.getElementById('videoDescription');
+    var thumbnailInput = document.getElementById('thumbnail');
+
+    const form = document.querySelector("#uploadForm");
+
+    async function sendData() {
+        const formData = new FormData(form);
+
+        try {
+            const response = await fetch("/api/Videos/Upload", {
+                method: "POST",
+                body: formData,
+            });
+            console.log(await response.json());
+        } catch (e) {
+            console.error(e);
+        }
+    }
+
+    form.addEventListener("submit", (event) => {
+        event.perventDefault();
+        sendData();
+    })*/
+
+    document.getElementById('azureUploadButton').addEventListener('click', function () {
+        var form = document.getElementById('uploadForm');
+        var formData = new FormData(form);
+
+        formData.append('File', file);
+        formData.append('FileType', 'video');
+
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', '/api/Videos/Upload', true);
+        xhr.onload = function () {
+            if (xhr.status === 200) {
+                console.log('Upload successful');
+                alert('Upload successful');
+            } else {
+                console.error('Upload failed');
+                alert('Upload failed');
+            }
+        };
+        xhr.send(formData);
+    });
+
+    /*
     azureUploadButton.addEventListener('click', async function () {
+        
+        var videoTitle = videoTitleInput.value;
+        var videoDescription = videoDescriptionInput.value;
+        var thumbnail = thumbnailInput.files[0];
+
+        if (!videoTitle) {
+            alert('Please fill the title at least');
+            return;
+        }
+
+        formData = new FormData();
+        formData.append('File', file);
+        formData.append('VideoTitle', videoTitle);
+        formData.append('VideoDescription', videoDescription);
+        formData.append('FileType', 'recording');
+        formData.append('Thumbnail', thumbnail);
+
         try {
             const response = await fetch('/api/Videos/Upload', {
                 method: 'POST',
@@ -417,5 +494,5 @@
         } catch (error) {
             console.error('Error uploading file:', error);
         }
-    });
+    });*/
 </script>

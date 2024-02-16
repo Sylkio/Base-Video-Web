@@ -36,21 +36,54 @@
             <button class="generic-btn" id="downloadButton">Download Recording</button>
             <br />
             <br />
-            <h6>Upload this to azure?</h6>
-            <button class="generic-btn" id="azureUploadButton">Upload</button>
+            <form id="uploadForm" method="post" action="/api/Videos/Upload" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label for="videoTitle">Video Title:</label>
+                    <input type="text" id="videoTitle" name="VideoTitle" required />
+                </div>
+                <div class="form-group">
+                    <label for="videoDescription">Video Description:</label>
+                    <textarea id="videoDescription" name="VideoDescription" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="thumbnail">Select Thumbnail Image:</label>
+                    <input type="file" id="thumbnail" name="Thumbnail" accept="image/png, image/jpeg" />
+                </div>
+                <button type="button" class="generic-btn" id="azureUploadButton">Upload</button>
+                @*<input type="submit" value="Submit" class="generic-btn"/>*@
+            </form>
+
+            @*<div class="form-group">
+                <label for="videoTitle">Video Title:</label>
+                <input type="text" id="videoTitle" name="VideoTitle" required />
+            </div>
+            <div class="form-group">
+                <label for="thumbnail">Select Thumbnail Image:</label>
+                <input type="file" id="thumbnail" name="Thumbnail" accept="image/png, image/jpeg" />
+            </div>
+            <div class="form-group">
+                <label for="videoDescription">Video Description:</label>
+                <textarea id="videoDescription" name="VideoDescription" required></textarea>
+            </div>
+            <button class="generic-btn" id="azureUploadButton">Upload</button>*@
         </div>
     </div>
 
     <script>
-        let stream;
-        let mediaRecorder;
-        let chunks = [];
-        let formData;
-
         const startButton = document.getElementById('startButton');
         const stopButton = document.getElementById('stopButton');
         const cameraPreview = document.getElementById('cameraPreview');
         const previewVideo = document.getElementById('previewVideo');
+
+        /*var videoTitles = document.getElementById('videoTitle').value;
+        var videoDescription = document.getElementById('videoDescription').value;
+        var thumbnail = document.getElementById('thumbnail');
+        var azureUploadButton = document.getElementById('azureUploadButton')*/
+
+        let stream;
+        let mediaRecorder;
+        let chunks = [];
+        let file;
 
         startButton.addEventListener('click', startRecording);
         stopButton.addEventListener('click', stopRecording);
@@ -91,13 +124,13 @@
                 startButton.style.display = 'inline-block';
                 stopButton.style.display = 'none';
 
-                let file = new File([blob], 'recordingz.mp4', { type: 'video/mp4' });
+                file = new File([blob], 'recordingz.mp4', { type: 'video/mp4' });
 
-                formData = new FormData();
+                /*formData = new FormData();
                 formData.append('File', file);
                 formData.append('VideoTitle', 'User recording');
                 formData.append('VideoDescription', 'User recording description');
-                formData.append('FileType', 'recording');
+                formData.append('FileType', 'recording');*/
             };
 
             mediaRecorder.start();
@@ -125,9 +158,31 @@
             }
         });
 
-        azureUploadButton.addEventListener('click', async function () {
+        document.getElementById('azureUploadButton').addEventListener('click', function () {
+            var form = document.getElementById('uploadForm');
+            var formData = new FormData(form);
+
+            formData.append('File', file);
+            formData.append('FileType', 'video');
+
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', '/api/Videos/Upload', true);
+            xhr.onload = function () {
+                if (xhr.status === 200) {
+                    console.log('Upload successful');
+                    alert('Upload successful');
+                } else {
+                    console.error('Upload failed');
+                    alert('Upload failed');
+                }
+            };
+            xhr.send(formData);
+        });
+
+        /*
+        async function azureUploadAPI() {
             try {
-                let response = await fetch('/api/Videos/Upload', {
+                const response = await fetch('/api/Videos/Upload', {
                     method: 'POST',
                     body: formData
                 });
@@ -140,6 +195,17 @@
             } catch (error) {
                 console.error('Error uploading file:', error);
             }
-        });
+        };
+
+        azureUploadButton.addEventListener('click', async function () {
+            formData = new FormData();
+            formData.append('File', file);
+            formData.append('VideoTitle', videoTitle);
+            formData.append('VideoDescription', videoDescription);
+            formData.append('FileType', 'recording');
+            formData.append('Thumbnail', thumbnail);
+
+            azureUploadAPI();
+        });*/
     </script>
 </body>
