@@ -163,7 +163,7 @@
             var formData = new FormData(form);
 
             formData.append('File', file);
-            formData.append('FileType', 'recording');
+            formData.append('FileType', 'video');
 
             var xhr = new XMLHttpRequest();
             xhr.open('POST', '/api/Videos/Upload', true);
