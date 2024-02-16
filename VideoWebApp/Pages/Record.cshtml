@@ -41,19 +41,22 @@
             <button class="generic-btn" id="downloadButton">Download Recording</button>
             <br />
             <br />
-            <div class="form-group">
-                <label for="videoTitle">Video Title:</label>
-                <input type="text" id="videoTitle" name="VideoTitle" required />
-            </div>
-            <div class="form-group">
-                <label for="thumbnail">Select Thumbnail Image:</label>
-                <input type="file" id="thumbnail" name="Thumbnail" accept="image/png, image/jpeg" />
-            </div>
-            <div class="form-group">
-                <label for="videoDescription">Video Description:</label>
-                <textarea id="videoDescription" name="VideoDescription" required></textarea>
-            </div>
-            <button class="generic-btn" id="azureUploadButton">Upload</button>
+            <form id="uploadForm" method="post" action="/api/Videos/Upload" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label for="videoTitle">Video Title:</label>
+                    <input type="text" id="videoTitle" name="VideoTitle" required />
+                </div>
+                <div class="form-group">
+                    <label for="videoDescription">Video Description:</label>
+                    <textarea id="videoDescription" name="VideoDescription" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="thumbnail">Select Thumbnail Image:</label>
+                    <input type="file" id="thumbnail" name="Thumbnail" accept="image/png, image/jpeg" />
+                </div>
+                <button type="button" class="generic-btn" id="azureUploadButton">Upload</button>
+                @*<input type="submit" value="Submit" class="generic-btn"/>*@
+            </form>
         </div>
     </div>
 </body>
@@ -304,12 +307,7 @@
     var previewVideo = document.getElementById('previewVideo');
     var downloadButton = document.getElementById('downloadButton');
 
-    var videoTitleInput = document.getElementById('videoTitle').value;
-    var videoDescriptionInput = document.getElementById('videoDescription').value;
-    var thumbnailInput = document.getElementById('thumbnail');
-
-    var azureUploadButton = document.getElementById('azureUploadButton')
-    let formData;
+    //let formData;
 
     var mediaRecorder;
     var isRecording = false;
@@ -377,8 +375,6 @@
             previewContainer.style.display = 'block';
 
             file = new File([blob], 'recording.webm', { type: 'video/webm' });
-
-            
         };
 
         mediaRecorder.start();
@@ -418,6 +414,54 @@
         }
     });
 
+    /*
+    var videoTitleInput = document.getElementById('videoTitle');
+    var videoDescriptionInput = document.getElementById('videoDescription');
+    var thumbnailInput = document.getElementById('thumbnail');
+
+    const form = document.querySelector("#uploadForm");
+
+    async function sendData() {
+        const formData = new FormData(form);
+
+        try {
+            const response = await fetch("/api/Videos/Upload", {
+                method: "POST",
+                body: formData,
+            });
+            console.log(await response.json());
+        } catch (e) {
+            console.error(e);
+        }
+    }
+
+    form.addEventListener("submit", (event) => {
+        event.perventDefault();
+        sendData();
+    })*/
+
+    document.getElementById('azureUploadButton').addEventListener('click', function () {
+        var form = document.getElementById('uploadForm');
+        var formData = new FormData(form);
+
+        formData.append('File', file);
+        formData.append('FileType', 'recording');
+
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', '/api/Videos/Upload', true);
+        xhr.onload = function () {
+            if (xhr.status === 200) {
+                console.log('Upload successful');
+                alert('Upload successful');
+            } else {
+                console.error('Upload failed');
+                alert('Upload failed');
+            }
+        };
+        xhr.send(formData);
+    });
+
+    /*
     azureUploadButton.addEventListener('click', async function () {
         
         var videoTitle = videoTitleInput.value;
@@ -450,5 +494,5 @@
         } catch (error) {
             console.error('Error uploading file:', error);
         }
-    });
+    });*/
 </script>
