@@ -10,7 +10,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.WebHost.ConfigureKestrel(serverOptions =>
 {
-    serverOptions.Limits.MaxRequestBodySize = 209715;
+    serverOptions.Limits.MaxRequestBodySize = 209715200;
 });
 
 // Add services to the container.
