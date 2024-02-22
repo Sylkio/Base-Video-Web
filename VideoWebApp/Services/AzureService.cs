@@ -54,6 +54,35 @@ namespace VideoWebApp.Services
 
             return sasToken;
         }
+        public async Task<string> GenerateSasUrlForBlob(string containerName, string blobName, bool write)
+        {
+            var blobServiceClient = new BlobServiceClient(_storageConnectionString);
+            var blobContainerClient = blobServiceClient.GetBlobContainerClient(containerName);
+            var blobClient = blobContainerClient.GetBlobClient(blobName);
+
+            var sasBuilder = new BlobSasBuilder
+            {
+                BlobContainerName = containerName,
+                BlobName = blobName,
+                Resource = "b",
+                StartsOn = DateTimeOffset.UtcNow.AddMinutes(-5), // 5 minutes before for clock skew
+                ExpiresOn = DateTimeOffset.UtcNow.AddHours(1) // 1 hour validity
+            };
+
+            if (write)
+            {
+                sasBuilder.SetPermissions(BlobSasPermissions.Write | BlobSasPermissions.Create | BlobSasPermissions.Read);
+            }
+            else
+            {
+                sasBuilder.SetPermissions(BlobSasPermissions.Read);
+            }
+
+            var sasToken = blobClient.GenerateSasUri(sasBuilder).Query;
+
+            return $"{blobClient.Uri}?{sasToken}";
+        }
+
         
         public string RetrieveFileFromStorage(string containerName, string FileName)
         {

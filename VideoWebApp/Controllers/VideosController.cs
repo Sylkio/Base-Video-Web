@@ -93,7 +93,7 @@ namespace VideoWebApp.Controllers
 
 
             string fileType = uploadDto.FileType ?? "video";
-            string azureFunctionUrl = "https://0f02-2001-2042-300d-6400-59c3-ed74-a2e8-2315.ngrok-free.app/api/Function1"; 
+            string azureFunctionUrl = "https://func-appvideo.azurewebsites.net/api/Function1?code=LrkJFsohK2uadT9ELlMi4reTHGHb3WEeAfT3840nRzUYAzFuHEihOQ=="; 
             string processedVideoUrl = string.Empty; 
             using (HttpClient httpClient = new HttpClient())
             {
