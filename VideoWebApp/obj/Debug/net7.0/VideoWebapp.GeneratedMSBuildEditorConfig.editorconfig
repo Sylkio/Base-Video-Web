@@ -9,57 +9,57 @@ build_property.EnforceExtendedAnalyzerRules =
 build_property._SupportedPlatformList = Linux,macOS,Windows
 build_property.RootNamespace = VideoWebapp
 build_property.RootNamespace = VideoWebapp
-build_property.ProjectDir = C:\Users\kunge\Documents\GitHub\Base-Video-Web\VideoWebApp\
+build_property.ProjectDir = E:\VS-LIA\Base-Video-Web\VideoWebApp\
 build_property.RazorLangVersion = 7.0
 build_property.SupportLocalizedComponentNames = 
 build_property.GenerateRazorMetadataSourceChecksumAttributes = 
-build_property.MSBuildProjectDirectory = C:\Users\kunge\Documents\GitHub\Base-Video-Web\VideoWebApp
+build_property.MSBuildProjectDirectory = E:\VS-LIA\Base-Video-Web\VideoWebApp
 build_property._RazorSourceGeneratorDebug = 
 
-[C:/Users/kunge/Documents/GitHub/Base-Video-Web/VideoWebApp/Pages/Error.cshtml]
+[E:/VS-LIA/Base-Video-Web/VideoWebApp/Pages/Error.cshtml]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcRXJyb3IuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/kunge/Documents/GitHub/Base-Video-Web/VideoWebApp/Pages/Index.cshtml]
+[E:/VS-LIA/Base-Video-Web/VideoWebApp/Pages/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcSW5kZXguY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/kunge/Documents/GitHub/Base-Video-Web/VideoWebApp/Pages/LiveRoom.cshtml]
+[E:/VS-LIA/Base-Video-Web/VideoWebApp/Pages/LiveRoom.cshtml]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcTGl2ZVJvb20uY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/kunge/Documents/GitHub/Base-Video-Web/VideoWebApp/Pages/LiveStream.cshtml]
+[E:/VS-LIA/Base-Video-Web/VideoWebApp/Pages/LiveStream.cshtml]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcTGl2ZVN0cmVhbS5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/kunge/Documents/GitHub/Base-Video-Web/VideoWebApp/Pages/Record.cshtml]
+[E:/VS-LIA/Base-Video-Web/VideoWebApp/Pages/Record.cshtml]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcUmVjb3JkLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/kunge/Documents/GitHub/Base-Video-Web/VideoWebApp/Pages/RecordIOS.cshtml]
+[E:/VS-LIA/Base-Video-Web/VideoWebApp/Pages/RecordIOS.cshtml]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcUmVjb3JkSU9TLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/kunge/Documents/GitHub/Base-Video-Web/VideoWebApp/Pages/Shared/_ValidationScriptsPartial.cshtml]
+[E:/VS-LIA/Base-Video-Web/VideoWebApp/Pages/Shared/_ValidationScriptsPartial.cshtml]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcU2hhcmVkXF9WYWxpZGF0aW9uU2NyaXB0c1BhcnRpYWwuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/kunge/Documents/GitHub/Base-Video-Web/VideoWebApp/Pages/Upload.cshtml]
+[E:/VS-LIA/Base-Video-Web/VideoWebApp/Pages/Upload.cshtml]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcVXBsb2FkLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/kunge/Documents/GitHub/Base-Video-Web/VideoWebApp/Pages/WatchVideo.cshtml]
+[E:/VS-LIA/Base-Video-Web/VideoWebApp/Pages/WatchVideo.cshtml]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcV2F0Y2hWaWRlby5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/kunge/Documents/GitHub/Base-Video-Web/VideoWebApp/Pages/_ViewImports.cshtml]
+[E:/VS-LIA/Base-Video-Web/VideoWebApp/Pages/_ViewImports.cshtml]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcX1ZpZXdJbXBvcnRzLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/kunge/Documents/GitHub/Base-Video-Web/VideoWebApp/Pages/_ViewStart.cshtml]
+[E:/VS-LIA/Base-Video-Web/VideoWebApp/Pages/_ViewStart.cshtml]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcX1ZpZXdTdGFydC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/kunge/Documents/GitHub/Base-Video-Web/VideoWebApp/Pages/Shared/_Layout.cshtml]
+[E:/VS-LIA/Base-Video-Web/VideoWebApp/Pages/Shared/_Layout.cshtml]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcU2hhcmVkXF9MYXlvdXQuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = b-fpoeqo6af8

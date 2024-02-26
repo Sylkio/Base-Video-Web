@@ -4,6 +4,10 @@
     //downlaod video to camera roll, 
     //upload the previewvideo with title and desc
 }
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/uuid/8.3.2/uuid.min.js"></script>
+
+}
 <head>
     <style>
         #container {
@@ -124,7 +128,10 @@
                 startButton.style.display = 'inline-block';
                 stopButton.style.display = 'none';
 
-                file = new File([blob], 'recordingz.mp4', { type: 'video/mp4' });
+                var generatedUuid = uuid.v4();
+                var filename = `record.ios.${generatedUuid}.mp4`;
+
+                file = new File([blob], filename, { type: 'video/mp4' });
 
                 /*formData = new FormData();
                 formData.append('File', file);
