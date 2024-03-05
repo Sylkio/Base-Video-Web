@@ -1,0 +1,9 @@
+{
+  "profiles": {
+    "VideoWebappFfmpeg": {
+      "commandName": "Project",
+      "commandLineArgs": "--port 1214",
+      "launchBrowser": false
+    }
+  }
+}
