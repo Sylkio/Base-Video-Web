@@ -51,11 +51,11 @@ namespace VideoWebApp.Controllers
             {
                 return BadRequest("Invalid file type. Allowed types are MP4, MOV, HEVC, WebM.");
             }
-
+            
             var uniqueId = Guid.NewGuid().ToString();
             var fileName = $"{uniqueId}_{uploadDto.File.FileName}";
             var tempFilePath = Path.GetTempFileName();
-
+        
             using (var stream = System.IO.File.Create(tempFilePath))
             {
                 await uploadDto.File.CopyToAsync(stream);
@@ -70,11 +70,16 @@ namespace VideoWebApp.Controllers
 
             System.IO.File.Delete(tempFilePath);
 
+            
             bool shouldGenerateThumbnail = uploadDto.Thumbnail == null;
 
-            string azureFunctionUrl = "http://localhost:1214/api/Function1";
+            string azureFunctionUrl = "https://func-appvideo.azurewebsites.net/api/Function1?code=LrkJFsohK2uadT9ELlMi4reTHGHb3WEeAfT3840nRzUYAzFuHEihOQ==";
             string processedVideoUrl = string.Empty;
             string thumbnailUrl = null;
+            if (uploadDto.Thumbnail != null)
+            {
+                thumbnailUrl = await _azureService.UploadThumbnailToBlobAsync("thumbnails", uploadDto.Thumbnail);
+            }
 
             using (HttpClient httpClient = new HttpClient())
             {
@@ -96,7 +101,7 @@ namespace VideoWebApp.Controllers
 
                 var functionResponse = await response.Content.ReadFromJsonAsync<AzureFunctionResponse>();
                 processedVideoUrl = functionResponse?.Url;
-                thumbnailUrl = functionResponse?.ThumbnailUrl;
+                thumbnailUrl = uploadDto.Thumbnail != null ? await _azureService.UploadThumbnailToBlobAsync("thumbnails", uploadDto.Thumbnail) : functionResponse?.ThumbnailUrl;
             }
 
             var video = new Video
@@ -104,7 +109,7 @@ namespace VideoWebApp.Controllers
                 Title = uploadDto.VideoTitle,
                 Description = uploadDto.VideoDescription,
                 VideoUrl = processedVideoUrl,
-                ThumbnailUrl = thumbnailUrl ?? string.Empty
+                ThumbnailUrl = thumbnailUrl
             };
 
             _context.Videos.Add(video);

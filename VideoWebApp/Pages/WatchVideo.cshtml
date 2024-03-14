@@ -4,10 +4,11 @@
 @if (Model.SelectedVideo != null)
 {
     <div style="width:400px;">
-        <video width="1200" poster="" controls>
+        <video width="1200" poster="@Model.SelectedVideo.ThumbnailUrl" controls>
             <source src="@Model.SelectedVideo.VideoUrl" type="video/mp4">
             Your browser does not support the video tag.
         </video>
+
         <h3>@Model.SelectedVideo.VideoTitle</h3>
         <h5>@Model.SelectedVideo.VideoDescription</h5>
         @Model.SelectedVideo.ThumbnailPath

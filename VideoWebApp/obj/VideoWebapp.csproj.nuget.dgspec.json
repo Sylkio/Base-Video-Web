@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\Thanos\\Documents\\GitHub\\Base-Video-Web\\VideoWebApp\\VideoWebapp.csproj": {}
+    "C:\\Users\\Thanos\\Documents\\GitHub\\Base-Video-Web\\videowebapp\\VideoWebapp.csproj": {}
   },
   "projects": {
-    "C:\\Users\\Thanos\\Documents\\GitHub\\Base-Video-Web\\VideoWebApp\\VideoWebapp.csproj": {
+    "C:\\Users\\Thanos\\Documents\\GitHub\\Base-Video-Web\\videowebapp\\VideoWebapp.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Thanos\\Documents\\GitHub\\Base-Video-Web\\VideoWebApp\\VideoWebapp.csproj",
+        "projectUniqueName": "C:\\Users\\Thanos\\Documents\\GitHub\\Base-Video-Web\\videowebapp\\VideoWebapp.csproj",
         "projectName": "VideoWebapp",
-        "projectPath": "C:\\Users\\Thanos\\Documents\\GitHub\\Base-Video-Web\\VideoWebApp\\VideoWebapp.csproj",
+        "projectPath": "C:\\Users\\Thanos\\Documents\\GitHub\\Base-Video-Web\\videowebapp\\VideoWebapp.csproj",
         "packagesPath": "C:\\Users\\Thanos\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Thanos\\Documents\\GitHub\\Base-Video-Web\\VideoWebApp\\obj\\",
+        "outputPath": "C:\\Users\\Thanos\\Documents\\GitHub\\Base-Video-Web\\videowebapp\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
