@@ -23,7 +23,6 @@ namespace VideoWebApp.Controllers
         private readonly ApplicationDbContext _context;
         private readonly ILogger<VideosController> _logger;
 
-        
         public VideosController(ApplicationDbContext context, IAzureService azureService, ILogger<VideosController> logger)
         {
             _context = context;
@@ -32,12 +31,12 @@ namespace VideoWebApp.Controllers
         }
 
         [HttpGet]
-
         public async Task<ActionResult<IEnumerable<Video>>> GetVideos()
         {
             var videos = await _context.Videos.ToListAsync();
             return Ok(videos);
         }
+
         [HttpPost("Upload")]
         [RequestSizeLimit(100_000_000)]
         public async Task<IActionResult> UploadVideo([FromForm] VideoUploadDto uploadDto)
@@ -50,21 +49,18 @@ namespace VideoWebApp.Controllers
             string[] allowedTypes = { "video/mp4", "video/quicktime", "video/hevc", "video/webm" };
             if (!allowedTypes.Contains(uploadDto.File.ContentType))
             {
-                return BadRequest("Invalid file type. Allowed types are MP4, MOV, HEVC, WebM");
+                return BadRequest("Invalid file type. Allowed types are MP4, MOV, HEVC, WebM.");
             }
 
-            // unique id
             var uniqueId = Guid.NewGuid().ToString();
-
-         
             var fileName = $"{uniqueId}_{uploadDto.File.FileName}";
             var tempFilePath = Path.GetTempFileName();
+
             using (var stream = System.IO.File.Create(tempFilePath))
             {
                 await uploadDto.File.CopyToAsync(stream);
             }
 
-            
             var uploadResult = await _azureService.UploadFileToBlobAsync("input-videos", tempFilePath, fileName);
             if (uploadResult == null)
             {
@@ -74,34 +70,12 @@ namespace VideoWebApp.Controllers
 
             System.IO.File.Delete(tempFilePath);
 
-            string thumbnailUploadResult = null;
-            if (uploadDto.Thumbnail != null)
-            {
-             
-                var thumbnailFileName = $"{uniqueId}_thumbnail_{uploadDto.Thumbnail.FileName}";
-                var thumbnailTempFilePath = Path.GetTempFileName();
-                using (var stream = System.IO.File.Create(thumbnailTempFilePath))
-                {
-                    await uploadDto.Thumbnail.CopyToAsync(stream);
-                }
+            bool shouldGenerateThumbnail = uploadDto.Thumbnail == null;
 
-                // Upload the thumbnail with the unique file name
-                thumbnailUploadResult = await _azureService.UploadFileToBlobAsync("thumbnails", thumbnailTempFilePath, thumbnailFileName);
-                System.IO.File.Delete(thumbnailTempFilePath);
-
-                if (thumbnailUploadResult == null)
-                {
-                    return BadRequest("Could not upload the thumbnail.");
-                }
-            }
-            else
-            {
-                return BadRequest("Thumbnail file is missing.");
-            }
-
-           
-            string azureFunctionUrl = "https://func-appvideo.azurewebsites.net/api/Function1?code=LrkJFsohK2uadT9ELlMi4reTHGHb3WEeAfT3840nRzUYAzFuHEihOQ==";
+            string azureFunctionUrl = "http://localhost:1214/api/Function1";
             string processedVideoUrl = string.Empty;
+            string thumbnailUrl = null;
+
             using (HttpClient httpClient = new HttpClient())
             {
                 var response = await httpClient.PostAsJsonAsync(
@@ -110,7 +84,8 @@ namespace VideoWebApp.Controllers
                     {
                         videoUrl = uploadResult,
                         name = fileName,
-                        fileType = uploadDto.FileType ?? "video"
+                        fileType = uploadDto.FileType ?? "video",
+                        generateThumbnail = shouldGenerateThumbnail
                     });
 
                 if (!response.IsSuccessStatusCode)
@@ -121,22 +96,23 @@ namespace VideoWebApp.Controllers
 
                 var functionResponse = await response.Content.ReadFromJsonAsync<AzureFunctionResponse>();
                 processedVideoUrl = functionResponse?.Url;
+                thumbnailUrl = functionResponse?.ThumbnailUrl;
             }
 
-            
             var video = new Video
             {
                 Title = uploadDto.VideoTitle,
                 Description = uploadDto.VideoDescription,
                 VideoUrl = processedVideoUrl,
-                ThumbnailUrl = thumbnailUploadResult
+                ThumbnailUrl = thumbnailUrl ?? string.Empty
             };
 
             _context.Videos.Add(video);
             await _context.SaveChangesAsync();
 
-            return Ok(new { processedVideoUrl, thumbnailUrl = thumbnailUploadResult });
+            return Ok(new { processedVideoUrl, thumbnailUrl });
         }
+
 
 
         private string DetermineContainer(string fileType)
@@ -229,10 +205,8 @@ namespace VideoWebApp.Controllers
         public class AzureFunctionResponse
         {
             public string Url { get; set; }
+            public string ThumbnailUrl { get; set; }
         }
-
-
-
 
     }
 
