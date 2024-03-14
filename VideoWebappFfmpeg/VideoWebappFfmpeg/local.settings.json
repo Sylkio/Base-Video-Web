@@ -1,0 +1,8 @@
+{
+  "IsEncrypted": false,
+  "Values": {
+    "AzureWebJobsStorage": "DefaultEndpointsProtocol=https;AccountName=saallan2023;AccountKey=UMLGE4CITs8tZ2JxsWGb0Iic+hsajF0TqtSlcafsH0ksfk/YUXQwdGBXOPGpeyeLreM8ci4No6Nl+AStk7yfnA==;EndpointSuffix=core.windows.net",
+    "FUNCTIONS_WORKER_RUNTIME": "dotnet",
+    "FfmpegPath": "C:\\FFmpeg\\bin\\ffmpeg.exe"
+  }
+}
