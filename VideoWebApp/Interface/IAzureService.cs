@@ -17,6 +17,7 @@ namespace VideoWebApp.Interface
         Task<string> ConvertVideoFileAsync(string inputFilePath, string outputFilePath);
         Task<IEnumerable<VideoPlayerModel>> ListVideoUrlsAsync(string containerName);
         Task<string> GenerateSasUrlForBlob(string containerName, string blobName, bool write);
-    }
+        Task<string> UploadThumbnailToBlobAsync(string containerName, IFormFile thumbnail);
+    }   
 
 }

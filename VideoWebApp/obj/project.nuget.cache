@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "2EE/5pyPlWgG3ATDwRzx25u5mGtl/xiPCmc/IQ+7yWnWQo8xAYIAe4l51rPucMm2Wr6HLJeZcAgs4Zvi6ydoBg==",
+  "dgSpecHash": "8fdbMUG+0imHeMJdBOYWmGdKBp1YNBBoIVypybaOMVGfrzgHQlBeWz4dr0yeK3n6OZmwTXxtXdNzsHaNu8h1ag==",
   "success": true,
-  "projectFilePath": "C:\\Users\\Thanos\\Documents\\GitHub\\Base-Video-Web\\VideoWebApp\\VideoWebapp.csproj",
+  "projectFilePath": "C:\\Users\\Thanos\\Documents\\GitHub\\Base-Video-Web\\videowebapp\\VideoWebapp.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Thanos\\.nuget\\packages\\azure.core\\1.36.0\\azure.core.1.36.0.nupkg.sha512",
     "C:\\Users\\Thanos\\.nuget\\packages\\azure.identity\\1.7.0\\azure.identity.1.7.0.nupkg.sha512",

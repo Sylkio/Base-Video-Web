@@ -42,13 +42,13 @@
             else
             {
                 <div class="video-grid">
-                    @foreach (var video in Model.Videos)
-                    {
-                        <a href="/WatchVideo/@video.Id">
-                            <div class="video-item">
-                                <img src="@video.ThumbnailUrl" alt="Thumbnail">
-                                <div class="video-info">
-                                    <div class="title">@video.VideoTitle</div>
+                @foreach (var video in Model.Videos)
+                {
+                    <a href="/WatchVideo/@video.Id">
+                        <div class="video-item">
+                            <img src="@video.ThumbnailUrl" alt="Thumbnail">
+                            <div class="video-info">
+                                <div class="title">@video.VideoTitle</div>
                                     @*<div class="info">100 views · 50 likes</div>*@
                                 </div>
                             </div>

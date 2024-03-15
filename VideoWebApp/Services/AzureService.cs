@@ -225,6 +225,33 @@ namespace VideoWebApp.Services
             // Return the list of video models
             return videoList;
         }
+        public async Task<string> UploadThumbnailToBlobAsync(string containerName, IFormFile thumbnail)
+        {
+            try
+            {
+                var blobServiceClient = new BlobServiceClient(_storageConnectionString);
+                var blobContainerClient = blobServiceClient.GetBlobContainerClient(containerName);
+
+                await blobContainerClient.CreateIfNotExistsAsync(PublicAccessType.Blob);
+
+                var fileName = Guid.NewGuid().ToString() + Path.GetExtension(thumbnail.FileName);
+                var blobClient = blobContainerClient.GetBlobClient(fileName);
+
+                using (var stream = thumbnail.OpenReadStream())
+                {
+                    await blobClient.UploadAsync(stream, true);
+                }
+
+                _logger.LogInformation($"Uploaded thumbnail '{fileName}' to container '{containerName}'.");
+                return blobClient.Uri.AbsoluteUri;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Error uploading thumbnail: {ex.Message}");
+                return null;
+            }
+        }
+
 
         public async Task<string> ConvertVideoFileAsync(string inputFilePath, string outputFilePath)
         {
