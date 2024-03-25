@@ -13,6 +13,9 @@ using System.Diagnostics;
 using Microsoft.Extensions.Logging;
 using VideoWebapp.DbHelper;
 using System.Net;
+using Microsoft.EntityFrameworkCore;
+using VideoWebApp.Data;
+using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace VideoWebApp.Services
 {
@@ -23,13 +26,15 @@ namespace VideoWebApp.Services
         private readonly string _storageContainerName;
         private readonly ILogger<AzureService> _logger;
         private readonly DbHelper _dbHelper;
+        private static ApplicationDbContext _context;
 
-        public AzureService(IConfiguration configuration, ILogger<AzureService> Logger, DbHelper dbHelper)
+        public AzureService(IConfiguration configuration, ILogger<AzureService> Logger, DbHelper dbHelper, ApplicationDbContext context)
         {
             _storageConnectionString = configuration.GetValue<string>("BlobConnectionString");
             _storageContainerName = configuration.GetValue<string>("BlobContainerName");
             _logger = Logger;
             _dbHelper = dbHelper;
+            _context = context;
         }
         #endregion
 
@@ -180,12 +185,12 @@ namespace VideoWebApp.Services
                 var blobClient = blobContainerClient.GetBlobClient(blobItem.Name);
                 var videoUrl = WebUtility.UrlDecode(blobClient.Uri.AbsoluteUri);
 
-                
+
                 _logger.LogInformation($"Blob URL: {videoUrl}");
 
-               
+
                 var matchVideo = videoMetadata.FirstOrDefault(v => v.VideoUrl == videoUrl);
-                
+
                 _logger.LogInformation("Listing all video metadata URLs:");
                 foreach (var video in videoMetadata)
                 {
@@ -193,12 +198,12 @@ namespace VideoWebApp.Services
                 }
                 if (matchVideo != null)
                 {
-                   
+
                     _logger.LogInformation($"Match found in video metadata: \n ID {matchVideo.Id}\n Title={matchVideo.VideoTitle}, URL={matchVideo.VideoUrl}");
 
                     var videoModel = new VideoPlayerModel
                     {
-                        Id = matchVideo.Id, 
+                        Id = matchVideo.Id,
                         VideoUrl = videoUrl,
                         VideoTitle = matchVideo.VideoTitle,
                         VideoDescription = matchVideo.VideoDescription,
@@ -208,7 +213,7 @@ namespace VideoWebApp.Services
                 }
                 else
                 {
-                    
+
                     _logger.LogWarning($"No match found in video metadata for URL: {videoUrl}");
 
                     var videoModel = new VideoPlayerModel
@@ -224,7 +229,48 @@ namespace VideoWebApp.Services
 
             // Return the list of video models
             return videoList;*/
+
+            //return en lista av alla videos i dbn
+            //några double checks om saker finns ens??
+
+            try
+            {
+                var videos = await _context.Videos.ToListAsync();
+
+                if (videos.Count == 0)
+                {
+                    _logger.LogWarning("No videos were found in the database.");
+                }
+
+                List<VideoPlayerModel> videoList = new List<VideoPlayerModel>();
+
+                foreach (var video in videos)
+                {
+                    _logger.LogTrace($"{video.Id} - {video.Title} \n {video.VideoUrl} \n {video.ThumbnailUrl}");
+                    VideoPlayerModel videoModel = new VideoPlayerModel
+                    {
+                        Id = video.Id,
+                        VideoTitle = video.Title,
+                        VideoDescription = video.Description,
+                        VideoUrl = video.VideoUrl,
+                        ThumbnailUrl = video.ThumbnailUrl
+                    };
+
+                    videoList.Add(videoModel);
+                }
+
+                return videoList; //DB till Video, Video ska gå till videoplayermodel, videoplayermodel ska till index, index t user
+
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "error occured on getting videos from db");
+                throw;
+            }
+
+
         }
+
         public async Task<string> UploadThumbnailToBlobAsync(string containerName, IFormFile thumbnail)
         {
             try
