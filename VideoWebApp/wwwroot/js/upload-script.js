@@ -15,8 +15,8 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         const formData = new FormData(form);
-        try {
-            alert('Uploading video, please wait...');
+        /*try {
+            //alert('Uploading video, please wait...');
             const response = await fetch(form.action, {
                 method: 'POST',
                 body: formData
@@ -27,6 +27,20 @@ document.addEventListener("DOMContentLoaded", function () {
             } else {
                 alert('Failed to upload video. Please try again.');
             }
+        } catch (error) {
+            alert('An error occurred during upload.');
+        }*/
+
+        try {
+            fetch(form.action, {
+                method: 'POST',
+                body: formData
+            }).then(() => {
+                alert('Video uploaded successfully!');
+                window.location.href = '/';
+            }).catch(error => {
+                alert('Failed to upload video. Please try again.');
+            });
         } catch (error) {
             alert('An error occurred during upload.');
         }

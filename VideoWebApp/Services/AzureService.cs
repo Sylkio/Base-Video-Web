@@ -170,7 +170,7 @@ namespace VideoWebApp.Services
 
         public async Task<IEnumerable<VideoPlayerModel>> ListVideoUrlsAsync(string containerName)
         {
-            var blobServiceClient = new BlobServiceClient(_storageConnectionString);
+            /*var blobServiceClient = new BlobServiceClient(_storageConnectionString);
             var blobContainerClient = blobServiceClient.GetBlobContainerClient("processed-videos");
             var videoMetadata = await _dbHelper.GetVideoMetadataAsync();
             var videoList = new List<VideoPlayerModel>();
@@ -194,11 +194,11 @@ namespace VideoWebApp.Services
                 if (matchVideo != null)
                 {
                    
-                    _logger.LogInformation($"Match found in video metadata: Title={matchVideo.VideoTitle}, URL={matchVideo.VideoUrl}");
+                    _logger.LogInformation($"Match found in video metadata: \n ID {matchVideo.Id}\n Title={matchVideo.VideoTitle}, URL={matchVideo.VideoUrl}");
 
                     var videoModel = new VideoPlayerModel
                     {
-                        Id = matchVideo.Id,
+                        Id = matchVideo.Id, 
                         VideoUrl = videoUrl,
                         VideoTitle = matchVideo.VideoTitle,
                         VideoDescription = matchVideo.VideoDescription,
@@ -223,7 +223,7 @@ namespace VideoWebApp.Services
             }
 
             // Return the list of video models
-            return videoList;
+            return videoList;*/
         }
         public async Task<string> UploadThumbnailToBlobAsync(string containerName, IFormFile thumbnail)
         {

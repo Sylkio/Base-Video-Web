@@ -37,6 +37,8 @@ namespace VideoWebApp.Controllers
             return Ok(videos);
         }
 
+        //-------------------------------------
+
         [HttpPost("Upload")]
         [RequestSizeLimit(100_000_000)]
         public async Task<IActionResult> UploadVideo([FromForm] VideoUploadDto uploadDto)
@@ -73,52 +75,34 @@ namespace VideoWebApp.Controllers
             
             bool shouldGenerateThumbnail = uploadDto.Thumbnail == null;
 
-            string azureFunctionUrl = "https://func-appvideo.azurewebsites.net/api/Function1?code=LrkJFsohK2uadT9ELlMi4reTHGHb3WEeAfT3840nRzUYAzFuHEihOQ==";
+            string azureFunctionUrl = "http://localhost:1214/api/Function1";
             string processedVideoUrl = string.Empty;
             string thumbnailUrl = null;
-            if (uploadDto.Thumbnail != null)
-            {
-                thumbnailUrl = await _azureService.UploadThumbnailToBlobAsync("thumbnails", uploadDto.Thumbnail);
-            }
 
             using (HttpClient httpClient = new HttpClient())
             {
+                if (!shouldGenerateThumbnail)
+                {
+                    thumbnailUrl = await _azureService.UploadThumbnailToBlobAsync("thumbnails", uploadDto.Thumbnail);
+                }
+
                 var response = await httpClient.PostAsJsonAsync(
                     azureFunctionUrl,
                     new
                     {
+                        title = uploadDto.VideoTitle,
+                        Description = uploadDto.VideoDescription,
                         videoUrl = uploadResult,
                         name = fileName,
                         fileType = uploadDto.FileType ?? "video",
-                        generateThumbnail = shouldGenerateThumbnail
+                        generateThumbnail = shouldGenerateThumbnail,
+                        thumbnailUrl = thumbnailUrl //om shouldgeneratethumbnail = false använd det i azure func
                     });
-
-                if (!response.IsSuccessStatusCode)
-                {
-                    _logger.LogError("Error calling Azure Function");
-                    return StatusCode(500, "Error processing the video");
-                }
-
-                var functionResponse = await response.Content.ReadFromJsonAsync<AzureFunctionResponse>();
-                processedVideoUrl = functionResponse?.Url;
-                thumbnailUrl = uploadDto.Thumbnail != null ? await _azureService.UploadThumbnailToBlobAsync("thumbnails", uploadDto.Thumbnail) : functionResponse?.ThumbnailUrl;
             }
-
-            var video = new Video
-            {
-                Title = uploadDto.VideoTitle,
-                Description = uploadDto.VideoDescription,
-                VideoUrl = processedVideoUrl,
-                ThumbnailUrl = thumbnailUrl
-            };
-
-            _context.Videos.Add(video);
-            await _context.SaveChangesAsync();
-
-            return Ok(new { processedVideoUrl, thumbnailUrl });
+            return Ok("should be cool");
         }
 
-
+        //-----------------------------------------------------------------
 
         private string DetermineContainer(string fileType)
         {
