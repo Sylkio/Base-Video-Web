@@ -247,6 +247,7 @@ namespace VideoWebApp.Services
                 foreach (var video in videos)
                 {
                     _logger.LogTrace($"{video.Id} - {video.Title} \n {video.VideoUrl} \n {video.ThumbnailUrl}");
+
                     VideoPlayerModel videoModel = new VideoPlayerModel
                     {
                         Id = video.Id,
