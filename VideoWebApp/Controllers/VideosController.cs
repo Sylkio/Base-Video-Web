@@ -75,7 +75,7 @@ namespace VideoWebApp.Controllers
             
             bool shouldGenerateThumbnail = uploadDto.Thumbnail == null;
 
-            string azureFunctionUrl = "http://localhost:1214/api/Function1";
+            string azureFunctionUrl = "https://func-appvideo.azurewebsites.net/api/Function1?code=LrkJFsohK2uadT9ELlMi4reTHGHb3WEeAfT3840nRzUYAzFuHEihOQ==";
             string processedVideoUrl = string.Empty;
             string thumbnailUrl = null;
 
